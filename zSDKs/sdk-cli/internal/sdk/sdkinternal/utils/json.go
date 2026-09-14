@@ -565,6 +565,9 @@ func unmarshalValue(value json.RawMessage, v reflect.Value, tag reflect.StructTa
 			}
 
 			if v.Kind() == reflect.Ptr {
+				if v.IsNil() {
+					v.Set(reflect.New(typ))
+				}
 				v = v.Elem()
 			}
 			v.Set(optionalnullable.FromReflect(typ, innerPtr))
