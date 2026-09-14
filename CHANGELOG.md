@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.937.16] - 2026-09-14
+### :wrench: Chores
+- [`51acff8`](https://github.com/speakeasy-api/openapi-generation/commit/51acff885ebbca6c6cb4d1794b68b7846f3bddf0) - add explicit return after t.Fatal for staticcheck [skip changelog] ([#17](https://github.com/speakeasy-api/openapi-generation/pull/17)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
+
+
 ## [v2.937.15] - 2026-09-11
 ### :bug: Bug Fixes
 - [`e0a5d13`](https://github.com/speakeasy-api/openapi-generation/commit/e0a5d13fd61b36b6dcf87f3a83ce20a5b286d8c7) - **python**: render whole-number float defaults and consts as float literals ([#14](https://github.com/speakeasy-api/openapi-generation/pull/14)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
@@ -20114,3 +20119,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.937.13]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.12...v2.937.13
 [v2.937.14]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.13...v2.937.14
 [v2.937.15]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.14...v2.937.15
+[v2.937.16]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.15...v2.937.16
