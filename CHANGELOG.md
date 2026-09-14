@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.937.18] - 2026-09-14
+### :bug: Bug Fixes
+- [`77e1501`](https://github.com/speakeasy-api/openapi-generation/commit/77e1501724870d50c336c68e05fa4f80cf279353) - **php**: resolve absolute-path and fully-qualified token URLs correctly in urljoin ([#13](https://github.com/speakeasy-api/openapi-generation/pull/13)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
+
+
 ## [v2.937.17] - 2026-09-14
 ### :bug: Bug Fixes
 - [`638d8d6`](https://github.com/speakeasy-api/openapi-generation/commit/638d8d650074c3b1067d3fbef3fba11f9df5c706) - **go**: serialize optional-nullable composite parameters by their own serialization rules ([#16](https://github.com/speakeasy-api/openapi-generation/pull/16)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
@@ -20126,3 +20131,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.937.15]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.14...v2.937.15
 [v2.937.16]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.15...v2.937.16
 [v2.937.17]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.16...v2.937.17
+[v2.937.18]: https://github.com/speakeasy-api/openapi-generation/compare/v2.937.17...v2.937.18
