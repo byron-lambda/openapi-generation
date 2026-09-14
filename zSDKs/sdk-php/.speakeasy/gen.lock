@@ -32,7 +32,7 @@ features:
     methodServerURLs: 2.82.2
     nameOverrides: 2.81.4
     nullables: 1.0.1
-    oauth2ClientCredentials: 1.1.5
+    oauth2ClientCredentials: 1.1.6
     pagination: 0.1.5
     responseFormat: 0.1.0
     retries: 0.1.4

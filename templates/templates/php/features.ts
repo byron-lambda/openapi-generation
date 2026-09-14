@@ -36,7 +36,7 @@ const supportedFeatures = {
   decimal: "0.1.1",
   pagination: "0.1.5",
   urlBasedPagination: "0.1.0",
-  oauth2ClientCredentials: "1.1.5",
+  oauth2ClientCredentials: "1.1.6",
   additionalDependencies: "0.1.0",
   retries: "0.1.4",
   sliceUnions: "0.1.0",
