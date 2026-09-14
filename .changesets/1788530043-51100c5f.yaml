@@ -3,6 +3,8 @@ features:
     - nullables
 targets:
     - go
+    - cli
+    - terraform
 type: fix
 bump: patch
 description: apply bigint/decimal string and number field tag formats to OptionalNullable-wrapped JSON fields
