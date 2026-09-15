@@ -9,7 +9,7 @@ const supportedFeatures = {
   globalServerURLs: "0.1.0",
   methodServerURLs: "0.0.0",
   globals: "0.1.0",
-  enums: "0.0.1",
+  enums: "0.0.2",
   openEnums: "0.0.0",
   serverIDs: "0.0.0",
   nameOverrides: "0.0.0",
@@ -345,10 +345,17 @@ function isTestSkipped(test: string): boolean {
     "errors-response-body-validation-lenient-union-variant",
     "event-stream-malformed-frame-lenient",
     "event-stream-malformed-frame-strict",
+    "optional-nullable-array-params-null-and-unset",
+    "optional-nullable-array-params-set",
+    "optional-nullable-deep-object-param",
+    "optional-nullable-special-header-params",
+    "optional-nullable-urlencoded-body",
     "request-bodies-complex-number-types-bigint-overflow",
     "event-stream-with-operation-timeout-streams-to-completion",
     "jsonl-stream-timeout-still-bounds-slow-stream",
     "jsonl-stream-with-timeout-streams-to-completion",
+    "open-union-strict-request-validation",
+    "optional-nullable-object-property-params",
   ].includes(test);
 }
 

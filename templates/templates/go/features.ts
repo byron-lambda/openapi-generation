@@ -1,6 +1,6 @@
 //@ts-ignore
 const supportedFeatures = {
-  core: "3.13.54",
+  core: "3.13.58",
   getRequestBodies: "2.81.1",
   flattening: "2.81.2",
   globalSecurity: "2.82.15",
@@ -8,7 +8,7 @@ const supportedFeatures = {
   globalServerURLs: "2.83.1",
   methodServerURLs: "2.82.2",
   globals: "2.82.2",
-  enums: "2.82.1",
+  enums: "2.82.2",
   serverIDs: "2.81.1",
   nameOverrides: "2.81.4",
   includes: "2.81.1",
@@ -295,14 +295,7 @@ function isTestSkipped(test: string): boolean {
     "object-with-optional-true-nullable-false-field-null",
     "object-with-optional-false-nullable-false-field-null",
     "smart-union-nested-union-vs-nested-union",
-    "request-bodies-put-multipart-optional-nullable",
-    "request-bodies-post-form-optional-nullable",
-    "request-bodies-post-json-optional-nullable",
     "smart-union-nullable-union-nullable-fields",
-    "request-bodies-post-form-optional-nullable-json-shared",
-    "request-bodies-put-multipart-optional-nullable-json-shared",
-    "request-bodies-post-json-optional-nullable-body-and-param",
-    "pagination-limit-offset-page-body-optional-nullable",
     "pagination-cursor-nullable-results",
     "retries-binary-request-body",
     "retries-header-http-date-beyond-max-interval",
@@ -424,6 +417,7 @@ function isTestSkipped(test: string): boolean {
     "security-ranking-operation-restriction",
     "security-ranking-pick-matrix",
     "security-ranking-source-rank",
+    "open-union-strict-request-validation",
   ].includes(test);
 }
 

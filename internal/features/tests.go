@@ -592,6 +592,12 @@ const (
 	TestObjectWithOptionalFalseNullableFalseFull
 	TestObjectWithOptionalFalseNullableFalseFieldAbsent
 	TestObjectWithOptionalFalseNullableFalseFieldNull
+	TestOptionalNullableArrayParamsSet
+	TestOptionalNullableArrayParamsNullAndUnset
+	TestOptionalNullableDeepObjectParam
+	TestOptionalNullableObjectPropertyParams
+	TestOptionalNullableSpecialHeaderParams
+	TestOptionalNullableUrlencodedBody
 	TestObjectWithOptionalFalseNullableTrueFieldAbsent
 	TestSmartUnionNestedUnionVsNestedUnion
 	TestSmartUnionOpenEnums
@@ -620,6 +626,7 @@ const (
 	TestOpenUnionMissingDiscriminator
 	TestOpenUnionInvalidPayload
 	TestOpenUnionKnownDiscInvalidSchema
+	TestOpenUnionStrictRequestValidation
 	TestOpenUnionEmbedded
 	TestOpenUnionSmartUnionInterop
 	TestTimeoutMsOverrideIsRespected

@@ -8,7 +8,7 @@ const supportedFeatures = {
   globalServerURLs: "2.83.1",
   methodServerURLs: "2.82.2",
   globals: "2.82.2",
-  enums: "2.82.0",
+  enums: "2.82.1",
   serverIDs: "2.81.1",
   nameOverrides: "2.81.4",
   includes: "2.81.1",
@@ -36,7 +36,7 @@ const supportedFeatures = {
   decimal: "0.1.1",
   pagination: "0.1.5",
   urlBasedPagination: "0.1.0",
-  oauth2ClientCredentials: "1.1.5",
+  oauth2ClientCredentials: "1.1.6",
   additionalDependencies: "0.1.0",
   retries: "0.1.4",
   sliceUnions: "0.1.0",
@@ -439,6 +439,11 @@ function isTestSkipped(test: string): boolean {
     "errors-response-body-validation-lenient-union-variant",
     "event-stream-malformed-frame-lenient",
     "event-stream-malformed-frame-strict",
+    "optional-nullable-array-params-null-and-unset",
+    "optional-nullable-array-params-set",
+    "optional-nullable-deep-object-param",
+    "optional-nullable-special-header-params",
+    "optional-nullable-urlencoded-body",
     "agent-mode-does-not-leak-between-invocations",
     "catalog-lists-values",
     "catalog-rejects-positional-argument",
@@ -553,6 +558,8 @@ function isTestSkipped(test: string): boolean {
     "event-stream-with-operation-timeout-streams-to-completion",
     "jsonl-stream-timeout-still-bounds-slow-stream",
     "jsonl-stream-with-timeout-streams-to-completion",
+    "open-union-strict-request-validation",
+    "optional-nullable-object-property-params",
   ].includes(test);
 }
 
