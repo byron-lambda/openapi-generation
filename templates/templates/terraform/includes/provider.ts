@@ -770,17 +770,12 @@ function templateProviderHTTPTransportTlsSkipVerify(
   result.push(
     `if transport, ok := ${httpTransportVariable}.Transport.(*http.Transport); ok {`,
   );
-  // Clone before mutating: the transport here is http.DefaultTransport, and
-  // writing its TLS configuration would leak InsecureSkipVerify to every
-  // other user of the global in the process.
-  result.push(`transport = transport.Clone()`);
   result.push(`if transport.TLSClientConfig == nil {`);
   result.push(`transport.TLSClientConfig = &tls.Config{}`);
   result.push(`}`);
   result.push(
     `transport.TLSClientConfig.InsecureSkipVerify = ${dataModelVariable}.${tlsSkipVerifyFieldName}.ValueBool()`,
   );
-  result.push(`${httpTransportVariable}.Transport = transport`);
   result.push(`}`);
 
   return result.join("\n");
