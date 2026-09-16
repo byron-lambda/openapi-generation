@@ -1,0 +1,10 @@
+id: 1789534602-780dfc2e
+features:
+    - core
+targets:
+    - terraform
+type: fix
+bump: patch
+description: stop provider Configure mutating the global http.DefaultClient
+author: ""
+date: "2026-09-16"

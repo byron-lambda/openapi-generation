@@ -75,8 +75,7 @@ func (p *{{sanitizeClassName .Global.Config.PackageName}}Provider) Configure(ctx
 	{{ templateProviderHTTPTransportOptsSetHeaders .Local "data" "providerHTTPTransportOpts" }}
 	{{ templateProviderHTTPTransportTlsSkipVerify .Local "data" "providerHTTPTransportOpts" }}
 
-	httpClient := http.DefaultClient
-	httpClient.Transport = NewProviderHTTPTransport(providerHTTPTransportOpts)
+	httpClient := &http.Client{Transport: NewProviderHTTPTransport(providerHTTPTransportOpts)}
 
 	{{ templateProviderConfigureSDKOptions .Global.AST.MainSDK }}
 
