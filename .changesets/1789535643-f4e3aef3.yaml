@@ -1,4 +1,4 @@
-id: 1789534602-780dfc2e
+id: 1789535643-f4e3aef3
 features:
     - core
 targets:
@@ -6,5 +6,5 @@ targets:
 type: fix
 bump: patch
 description: stop provider Configure mutating the global http.DefaultClient
-author: ""
+author: byron-lambda
 date: "2026-09-16"
