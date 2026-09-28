@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.941.4] - 2026-09-28
+### :wrench: Chores
+- [`0ce494a`](https://github.com/speakeasy-api/openapi-generation/commit/0ce494a11fc77624815a07bec86ccdf6674048b6) - dismiss only the review:bypass workflow's own approvals ([#43](https://github.com/speakeasy-api/openapi-generation/pull/43)) *(commit by [@ThomasRooney](https://github.com/ThomasRooney))*
+
+
 ## [v2.941.3] - 2026-09-25
 ### :bug: Bug Fixes
 - [`60b8059`](https://github.com/speakeasy-api/openapi-generation/commit/60b8059f2d69ce2145f1def2e3ded7a34511e151) - **cli**: include auto-assigned short flags in usage schemas ([#42](https://github.com/speakeasy-api/openapi-generation/pull/42)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
@@ -20234,3 +20239,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.941.1]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.0...v2.941.1
 [v2.941.2]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.1...v2.941.2
 [v2.941.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.2...v2.941.3
+[v2.941.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.3...v2.941.4
