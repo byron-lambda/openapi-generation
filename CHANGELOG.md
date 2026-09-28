@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.941.8] - 2026-09-28
+### :bug: Bug Fixes
+- [`7fa8df4`](https://github.com/speakeasy-api/openapi-generation/commit/7fa8df44a8d004d5c13d26f5269e2d8ab68dd6dc) - **cli**: set goreleaser project_name to cliName ([#46](https://github.com/speakeasy-api/openapi-generation/pull/46)) *(commit by [@2ynn](https://github.com/2ynn))*
+
+
 ## [v2.941.7] - 2026-09-28
 ### :bug: Bug Fixes
 - [`f82a82d`](https://github.com/speakeasy-api/openapi-generation/commit/f82a82df8e5628b61c7ac8a0f9b77e440eb015d9) - **ruby**: type-check retry exponents and load hyphenated gems under Sorbet ([#38](https://github.com/speakeasy-api/openapi-generation/pull/38)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
@@ -20258,3 +20263,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.941.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.4...v2.941.5
 [v2.941.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.5...v2.941.6
 [v2.941.7]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.6...v2.941.7
+[v2.941.8]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.7...v2.941.8
