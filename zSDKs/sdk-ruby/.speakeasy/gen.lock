@@ -13,7 +13,7 @@ features:
   ruby:
     additionalProperties: 0.1.1
     constsAndDefaults: 0.1.4
-    core: 3.11.35
+    core: 3.11.36
     customSecuritySchemes: 0.1.0
     deprecations: 2.81.2
     docs: 0.5.3
@@ -36,7 +36,7 @@ features:
     operationTimeout: 0.1.0
     pagination: 0.1.1
     responseFormat: 0.1.0
-    retries: 0.1.4
+    retries: 0.1.5
     serverEvents: 0.1.5
     serverEventsSentinels: 0.1.1
     serverIDs: 2.81.1

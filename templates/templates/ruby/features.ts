@@ -1,6 +1,6 @@
 //@ts-ignore
 const supportedFeatures = {
-  core: "3.11.35",
+  core: "3.11.36",
   getRequestBodies: "2.81.1",
   flattening: "2.81.1",
   globalSecurity: "2.81.11",
@@ -23,7 +23,7 @@ const supportedFeatures = {
   callbacks: "1.0.0",
   globalSecurityFlattening: "0.1.0",
   globalSecurityCallbacks: "0.1.0",
-  retries: "0.1.4",
+  retries: "0.1.5",
   operationTimeout: "0.1.0",
   sdkHooks: "0.3.1",
   additionalDependencies: "0.1.1",
