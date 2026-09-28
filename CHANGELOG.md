@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.941.7] - 2026-09-28
+### :bug: Bug Fixes
+- [`f82a82d`](https://github.com/speakeasy-api/openapi-generation/commit/f82a82df8e5628b61c7ac8a0f9b77e440eb015d9) - **ruby**: type-check retry exponents and load hyphenated gems under Sorbet ([#38](https://github.com/speakeasy-api/openapi-generation/pull/38)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
+
+
 ## [v2.941.6] - 2026-09-28
 ### :bug: Bug Fixes
 - [`4f9afe7`](https://github.com/speakeasy-api/openapi-generation/commit/4f9afe7cb4a75f61395371827d4d6301320e5101) - **all**: drop a flattened union's format when an untyped const or enum member allows a value outside it ([#41](https://github.com/speakeasy-api/openapi-generation/pull/41)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
@@ -20252,3 +20257,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.941.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.3...v2.941.4
 [v2.941.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.4...v2.941.5
 [v2.941.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.5...v2.941.6
+[v2.941.7]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.6...v2.941.7
