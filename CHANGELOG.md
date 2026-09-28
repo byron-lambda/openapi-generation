@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.941.5] - 2026-09-28
+### :bug: Bug Fixes
+- [`05e0be1`](https://github.com/speakeasy-api/openapi-generation/commit/05e0be132edcf0b794e03fc00864c6cc00815310) - **terraform**: redact sensitive attribute and provider values from debug response diagnostics ([#35](https://github.com/speakeasy-api/openapi-generation/pull/35)) *(commit by [@ThomasRooney](https://github.com/ThomasRooney))*
+
+
 ## [v2.941.4] - 2026-09-28
 ### :wrench: Chores
 - [`0ce494a`](https://github.com/speakeasy-api/openapi-generation/commit/0ce494a11fc77624815a07bec86ccdf6674048b6) - dismiss only the review:bypass workflow's own approvals ([#43](https://github.com/speakeasy-api/openapi-generation/pull/43)) *(commit by [@ThomasRooney](https://github.com/ThomasRooney))*
@@ -20240,3 +20245,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.941.2]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.1...v2.941.2
 [v2.941.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.2...v2.941.3
 [v2.941.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.3...v2.941.4
+[v2.941.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.4...v2.941.5
