@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.941.9] - 2026-09-29
+### :bug: Bug Fixes
+- [`95b6500`](https://github.com/speakeasy-api/openapi-generation/commit/95b650042db2ec7dfcc09a9222964ab77409e989) - **cli**: throw instead of exit on install.ps1 failure ([#47](https://github.com/speakeasy-api/openapi-generation/pull/47)) *(commit by [@2ynn](https://github.com/2ynn))*
+
+
 ## [v2.941.8] - 2026-09-28
 ### :bug: Bug Fixes
 - [`7fa8df4`](https://github.com/speakeasy-api/openapi-generation/commit/7fa8df44a8d004d5c13d26f5269e2d8ab68dd6dc) - **cli**: set goreleaser project_name to cliName ([#46](https://github.com/speakeasy-api/openapi-generation/pull/46)) *(commit by [@2ynn](https://github.com/2ynn))*
@@ -20264,3 +20269,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.941.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.5...v2.941.6
 [v2.941.7]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.6...v2.941.7
 [v2.941.8]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.7...v2.941.8
+[v2.941.9]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.8...v2.941.9
