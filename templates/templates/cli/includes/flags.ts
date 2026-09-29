@@ -77,6 +77,64 @@ registerTemplateFunc(
 );
 
 /**
+ * Collect the flag names registered on the root command besides server
+ * template variables, including Cobra's default --help flag.
+ */
+function rootFlagNames(): Set<string> {
+  const names = new Set<string>(["help"]);
+  for (const flag of getBuiltinRootUsageFlags()) {
+    names.add(flag.spec.match(/--(\S+)/)![1]);
+  }
+  for (const field of getCLISecurityFields()) {
+    names.add(field.flagName);
+  }
+  if (hasGlobals()) {
+    for (const field of context.Global.AST.MainSDK.Globals.Fields) {
+      names.add(sanitizeFlagNameWithReserved(field.Name));
+    }
+  }
+  return names;
+}
+
+/**
+ * Map each server template variable to a unique root flag name. Variables
+ * whose flag name collides with another root flag get "-param" suffixes until
+ * the name is unused. Non-colliding variables are assigned first so a suffixed
+ * name never takes another variable's own name (e.g. "help" vs "help_param").
+ */
+function serverVariableFlagNames(): Map<string, string> {
+  const variables = context.Global.AST.MainSDK.Servers?.GetVariables() || [];
+  const taken = rootFlagNames();
+  const names = new Map<string, string>();
+  const colliding: string[] = [];
+  for (const v of variables) {
+    const flagName = sanitizeFlagName(v.Name);
+    if (taken.has(flagName)) {
+      colliding.push(v.Name);
+      continue;
+    }
+    taken.add(flagName);
+    names.set(v.Name, flagName);
+  }
+  for (const name of colliding) {
+    let candidate = `${sanitizeFlagName(name)}-param`;
+    while (taken.has(candidate)) {
+      candidate = `${candidate}-param`;
+    }
+    taken.add(candidate);
+    names.set(name, candidate);
+  }
+  return names;
+}
+
+/**
+ * Resolve the root flag name registered for a server template variable.
+ */
+function serverVariableFlagName(name: string): string {
+  return serverVariableFlagNames().get(name) ?? sanitizeFlagName(name);
+}
+
+/**
  * Build a nested flag name with dot notation.
  * Example: buildNestedFlagName("user", "name") => "user.name"
  */
