@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.943.0] - 2026-09-29
+### :bee: New Features
+- [`6843466`](https://github.com/speakeasy-api/openapi-generation/commit/6843466f2ae5dfadd75223c6720bc20c7b4225ce) - **cli**: add arrayFlagFormat for JSON string-array flags ([#51](https://github.com/speakeasy-api/openapi-generation/pull/51)) *(commit by [@2ynn](https://github.com/2ynn))*
+
+
 ## [v2.942.0] - 2026-09-29
 ### :bee: New Features
 - [`554d2ef`](https://github.com/speakeasy-api/openapi-generation/commit/554d2ef0bdc724f8511ef955158d2c72e629d37a) - **cli**: add root --version flag ([#48](https://github.com/speakeasy-api/openapi-generation/pull/48)) *(commit by [@2ynn](https://github.com/2ynn))*
@@ -20283,3 +20288,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.941.9]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.8...v2.941.9
 [v2.941.10]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.9...v2.941.10
 [v2.942.0]: https://github.com/speakeasy-api/openapi-generation/compare/v2.941.10...v2.942.0
+[v2.943.0]: https://github.com/speakeasy-api/openapi-generation/compare/v2.942.0...v2.943.0
