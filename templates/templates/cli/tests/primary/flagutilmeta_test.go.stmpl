@@ -409,6 +409,146 @@ func TestBuildRequestRejectsBlankRequiredPathParamArrayElements(t *testing.T) {
 	}
 }
 
+func TestBuildRequestRejectsBlankRequiredJSONPathParamArrayElements(t *testing.T) {
+	meta := []flagutil.FlagMeta{
+		{FlagName: "ids", FieldPath: "IDs", Kind: flagutil.FlagKindJSON, Required: true},
+	}
+	for _, value := range []string{`[]`, `null`, `["   "]`, `["item","\t"]`} {
+		t.Run(value, func(t *testing.T) {
+			cmd := newRequiredParamsCommand(meta)
+			require.NoError(t, cmd.Flags().Set("ids", value))
+			_, err := flagutil.BuildRequest[requiredPathArrayRequest](cmd, meta, "", "")
+			assertCLIValidation(t, err, "ids")
+		})
+	}
+}
+
+func TestBuildRequestAcceptsRequiredJSONPathParamArray(t *testing.T) {
+	meta := []flagutil.FlagMeta{
+		{FlagName: "ids", FieldPath: "IDs", Kind: flagutil.FlagKindJSON, Required: true},
+	}
+	cmd := newRequiredParamsCommand(meta)
+	require.NoError(t, cmd.Flags().Set("ids", `["a","b"]`))
+	req, err := flagutil.BuildRequest[requiredPathArrayRequest](cmd, meta, "", "")
+	require.NoError(t, err)
+	assert.Equal(t, []string{"a", "b"}, req.IDs)
+}
+
+type arrayQueryRequest struct {
+	IDs []string `queryParam:"style=form,explode=true,name=ids"`
+}
+
+func TestBuildRequestRejectsEmptyRequiredJSONQueryParamArray(t *testing.T) {
+	meta := []flagutil.FlagMeta{
+		{FlagName: "ids", FieldPath: "IDs", Kind: flagutil.FlagKindJSON, Required: true},
+	}
+	cmd := newRequiredParamsCommand(meta)
+	require.NoError(t, cmd.Flags().Set("ids", `[]`))
+	_, err := flagutil.BuildRequest[arrayQueryRequest](cmd, meta, "", "")
+	assertCLIValidation(t, err, "ids")
+}
+
+type int64ArrayQueryRequest struct {
+	Codes []int64 `queryParam:"style=form,explode=true,name=codes"`
+}
+
+func TestBuildRequestValidatesInt64EnumArrayElementsExactly(t *testing.T) {
+	meta := []flagutil.FlagMeta{
+		{FlagName: "codes", FieldPath: "Codes", Kind: flagutil.FlagKindJSON, Required: true, EnumValues: []string{"9007199254740993", "1"}},
+	}
+
+	cmd := newRequiredParamsCommand(meta)
+	require.NoError(t, cmd.Flags().Set("codes", `[9007199254740993]`))
+	req, err := flagutil.BuildRequest[int64ArrayQueryRequest](cmd, meta, "", "")
+	require.NoError(t, err)
+	assert.Equal(t, []int64{9007199254740993}, req.Codes)
+
+	cmd = newRequiredParamsCommand(meta)
+	require.NoError(t, cmd.Flags().Set("codes", `[9007199254740992]`))
+	_, err = flagutil.BuildRequest[int64ArrayQueryRequest](cmd, meta, "", "")
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid value for --codes: "9007199254740992"; valid options: 9007199254740993, 1`)
+}
+
+type nullableElementArrayQueryRequest struct {
+	Codes []*int64 `queryParam:"style=form,explode=true,name=codes"`
+}
+
+func TestBuildRequestRejectsNullElementsInNonNullableJSONArray(t *testing.T) {
+	meta := []flagutil.FlagMeta{
+		{FlagName: "codes", FieldPath: "Codes", Kind: flagutil.FlagKindJSON},
+	}
+	cmd := newRequiredParamsCommand(meta)
+	require.NoError(t, cmd.Flags().Set("codes", `[1, null]`))
+	_, err := flagutil.BuildRequest[int64ArrayQueryRequest](cmd, meta, "", "")
+	assertCLIValidation(t, err, "codes")
+	assert.Contains(t, err.Error(), "null element")
+
+	cmd = newRequiredParamsCommand(meta)
+	require.NoError(t, cmd.Flags().Set("codes", `[1, null]`))
+	req, err := flagutil.BuildRequest[nullableElementArrayQueryRequest](cmd, meta, "", "")
+	require.NoError(t, err)
+	require.Len(t, req.Codes, 2)
+	assert.Nil(t, req.Codes[1])
+}
+
+type nullableEnumItemArrayQueryRequest struct {
+	Levels []*string `queryParam:"style=form,explode=true,name=levels"`
+	Codes  []*int64  `queryParam:"style=form,explode=true,name=codes"`
+}
+
+func TestBuildRequestValidatesNullableEnumItemArrayElements(t *testing.T) {
+	for _, tc := range []struct {
+		flagName  string
+		fieldPath string
+		enum      []string
+		valid     string
+		invalid   string
+	}{
+		{flagName: "levels", fieldPath: "Levels", enum: []string{"low", "high"}, valid: `["low", null, "high"]`, invalid: `[null, "medium"]`},
+		{flagName: "codes", fieldPath: "Codes", enum: []string{"1", "2"}, valid: `[1, null, 2]`, invalid: `[null, 3]`},
+	} {
+		t.Run(tc.flagName, func(t *testing.T) {
+			meta := []flagutil.FlagMeta{
+				{FlagName: tc.flagName, FieldPath: tc.fieldPath, Kind: flagutil.FlagKindJSON, EnumValues: tc.enum},
+			}
+
+			cmd := newRequiredParamsCommand(meta)
+			require.NoError(t, cmd.Flags().Set(tc.flagName, tc.valid))
+			_, err := flagutil.BuildRequest[nullableEnumItemArrayQueryRequest](cmd, meta, "", "")
+			require.NoError(t, err)
+
+			cmd = newRequiredParamsCommand(meta)
+			require.NoError(t, cmd.Flags().Set(tc.flagName, tc.invalid))
+			_, err = flagutil.BuildRequest[nullableEnumItemArrayQueryRequest](cmd, meta, "", "")
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "valid options")
+		})
+	}
+}
+
+type int64ArrayRepeatableQueryRequest struct {
+	Codes         []int64  `queryParam:"style=form,explode=true,name=codes"`
+	NullableCodes []*int64 `queryParam:"style=form,explode=true,name=nullableCodes"`
+}
+
+func TestBuildRequestConvertsRepeatableIntEnumArrayElements(t *testing.T) {
+	meta := []flagutil.FlagMeta{
+		{FlagName: "codes", FieldPath: "Codes", Kind: flagutil.FlagKindStringArray, EnumValues: []string{"9007199254740993", "1"}},
+		{FlagName: "nullable-codes", FieldPath: "NullableCodes", Kind: flagutil.FlagKindStringArray, EnumValues: []string{"1", "2"}},
+	}
+	cmd := newRequiredParamsCommand(meta)
+	for _, v := range []string{"9007199254740993", "1"} {
+		require.NoError(t, cmd.Flags().Set("codes", v))
+	}
+	require.NoError(t, cmd.Flags().Set("nullable-codes", "2"))
+	req, err := flagutil.BuildRequest[int64ArrayRepeatableQueryRequest](cmd, meta, "", "")
+	require.NoError(t, err)
+	assert.Equal(t, []int64{9007199254740993, 1}, req.Codes)
+	require.Len(t, req.NullableCodes, 1)
+	assert.Equal(t, int64(2), *req.NullableCodes[0])
+}
+
 func TestBuildRequestRejectsBlankRequiredFormattedPathParams(t *testing.T) {
 	for _, tc := range []struct {
 		name       string

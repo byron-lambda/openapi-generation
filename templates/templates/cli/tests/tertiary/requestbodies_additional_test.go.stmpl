@@ -1,0 +1,226 @@
+package tests
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"{{getGolangPackage}}/internal/clierrors"
+)
+
+func TestJSONArrayFlagExampleRendersSingleToken(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"request-bodies", "cli-json-array-flags-post", "--help"}))
+	stdout := h.GetStdout()
+	assert.Contains(t, stdout, `--labels '["release candidate","nightly"]'`)
+	assert.Regexp(t, `--events '\["item\.(created|deleted)"\]'`, stdout)
+	assert.Contains(t, stdout, `--channels '["email"]'`)
+	assert.NotContains(t, stdout, "--labels 'release candidate'")
+	assert.NotContains(t, stdout, `'[]'`)
+	assert.Contains(t, stdout, "(JSON array)")
+}
+
+func TestJSONArrayFlagSendsArray(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", `["release candidate","nightly"]`,
+		"--events", `["item.created","item.deleted"]`,
+		"--channels", `["sms"]`,
+	}))
+	labels, ok := jsonGet(h.GetStdout(), "json.labels").([]interface{})
+	require.True(t, ok, "labels must be an array: %s", h.GetStdout())
+	assert.Equal(t, []interface{}{"release candidate", "nightly"}, labels)
+	events, ok := jsonGet(h.GetStdout(), "json.events").([]interface{})
+	require.True(t, ok, "events must be an array: %s", h.GetStdout())
+	assert.Equal(t, []interface{}{"item.created", "item.deleted"}, events)
+	channels, ok := jsonGet(h.GetStdout(), "json.channels").([]interface{})
+	require.True(t, ok, "channels must be an array: %s", h.GetStdout())
+	assert.Equal(t, []interface{}{"sms"}, channels)
+}
+
+func TestJSONArrayFlagRejectsBareValue(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	err := h.RunWithServer(s.URL, []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", "nightly",
+		"--events", `["item.created"]`,
+		"--channels", `["email"]`,
+	})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid value for --labels: expected a JSON array")
+}
+
+func TestJSONArrayFlagRejectsNull(t *testing.T) {
+	for _, value := range []string{`null`, `["a",null]`} {
+		t.Run(value, func(t *testing.T) {
+			s := newEchoServer()
+			defer s.Close()
+
+			h := NewCLITestHarness(t)
+			err := h.RunWithServer(s.URL, []string{
+				"request-bodies", "cli-json-array-flags-post",
+				"--labels", value,
+				"--events", `["item.created"]`,
+				"--channels", `["email"]`,
+			})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "invalid value for --labels: null")
+		})
+	}
+}
+
+func TestJSONArrayFlagRejectsNonStringArray(t *testing.T) {
+	for _, value := range []string{`[1]`, `["a"`} {
+		t.Run(value, func(t *testing.T) {
+			s := newEchoServer()
+			defer s.Close()
+
+			h := NewCLITestHarness(t)
+			err := h.RunWithServer(s.URL, []string{
+				"request-bodies", "cli-json-array-flags-post",
+				"--labels", value,
+				"--events", `["item.created"]`,
+				"--channels", `["email"]`,
+			})
+			require.Error(t, err)
+			assert.Contains(t, err.Error(), "invalid value for --labels: expected a JSON array of strings")
+			assert.NotContains(t, err.Error(), "response body")
+			assert.Equal(t, clierrors.ExitUsage, clierrors.ExitCode(err))
+		})
+	}
+}
+
+func TestJSONArrayFlagSendsEmptyRequiredBodyArray(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", `["nightly"]`,
+		"--events", `["item.created"]`,
+		"--channels", `[]`,
+	}))
+	channels, ok := jsonGet(h.GetStdout(), "json.channels").([]interface{})
+	require.True(t, ok, "channels must be an array: %s", h.GetStdout())
+	assert.Empty(t, channels)
+	assert.NotContains(t, h.GetStderr(), "Warning")
+}
+
+func TestJSONArrayFlagSendsEmptyOptionalArray(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", `["nightly"]`,
+		"--events", `["item.created"]`,
+		"--channels", `["email"]`,
+		"--aliases", `[]`,
+	}))
+	aliases, ok := jsonGet(h.GetStdout(), "json.aliases").([]interface{})
+	require.True(t, ok, "aliases must be an array: %s", h.GetStdout())
+	assert.Empty(t, aliases)
+}
+
+func TestJSONArrayEnumFlagRejectsUnknownValue(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	err := h.RunWithServer(s.URL, []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", `["nightly"]`,
+		"--events", `["item.created","bogus"]`,
+		"--channels", `["email"]`,
+	})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid value for --events: "bogus"; valid options: item.created, item.deleted`)
+	assert.Equal(t, clierrors.ExitUsage, clierrors.ExitCode(err))
+}
+
+func TestJSONArrayNullableEnumFlagValidatesElements(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	args := []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", `["nightly"]`,
+		"--events", `["item.created"]`,
+		"--channels", `["email"]`,
+	}
+	h := NewCLITestHarness(t)
+	err := h.RunWithServer(s.URL, append(args, "--priorities", `["bogus"]`))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid value for --priorities: "bogus"; valid options: low, high`)
+	assert.Equal(t, clierrors.ExitUsage, clierrors.ExitCode(err))
+
+	h = NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, append(args, "--priorities", `["high"]`)))
+	priorities, ok := jsonGet(h.GetStdout(), "json.priorities").([]interface{})
+	require.True(t, ok, "priorities must be an array: %s", h.GetStdout())
+	assert.Equal(t, []interface{}{"high"}, priorities)
+}
+
+func TestJSONArrayIntEnumFlagValidatesElements(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	args := []string{
+		"request-bodies", "cli-json-array-flags-post",
+		"--labels", `["nightly"]`,
+		"--events", `["item.created"]`,
+		"--channels", `["email"]`,
+	}
+	h := NewCLITestHarness(t)
+	err := h.RunWithServer(s.URL, append(args, "--levels", `[2,9]`))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid value for --levels: "9"; valid options: 1, 2, 3`)
+	assert.Equal(t, clierrors.ExitUsage, clierrors.ExitCode(err))
+
+	h = NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, append(args, "--levels", `[2,3]`)))
+	levels, ok := jsonGet(h.GetStdout(), "json.levels").([]interface{})
+	require.True(t, ok, "levels must be an array: %s", h.GetStdout())
+	assert.Equal(t, []interface{}{2.0, 3.0}, levels)
+}
+
+func TestJSONArrayEnumFlagHelpListsOptions(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"request-bodies", "cli-json-array-flags-post", "--help"}))
+	assert.Contains(t, h.GetStdout(), "(options: item.created, item.deleted)")
+}
+
+func TestJSONArrayFlagHelpIgnoresBacktickedDescription(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"request-bodies", "cli-json-array-flags-post", "--help"}))
+	stdout := h.GetStdout()
+	assert.Regexp(t, `--aliases string\s`, stdout)
+	assert.NotContains(t, stdout, "--aliases alpha")
+	assert.Contains(t, stdout, "e.g. 'alpha'")
+}
+
+func TestJSONArrayFlagHintsFollowMultiLineDescription(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"request-bodies", "cli-json-array-flags-post", "--help"}))
+	stdout := h.GetStdout()
+	assert.Regexp(t, `(?m)^\s+- item\.deleted\s*$`, stdout)
+	assert.Regexp(t, `(?m)^\s+\(options: item\.created, item\.deleted\) \(JSON array\) \[required\]\s*$`, stdout)
+}
+
+func TestJSONArrayFlagNotVariadicInUsageSchema(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"request-bodies", "cli-json-array-flags-post", "--usage"}))
+	stdout := h.GetStdout()
+	assert.Contains(t, stdout, "--labels <labels>")
+	assert.NotContains(t, stdout, "--labels <labels...>")
+}

@@ -183,6 +183,16 @@ function isEnumType(typeDef: TypeDef): boolean {
 registerTemplateFunc("isEnumType", isEnumType);
 
 /**
+ * Enum type of a scalar enum field, or item type of an enum-item array.
+ */
+function flagEnumType(typeDef: TypeDef): TypeDef | undefined {
+  if (isEnumType(typeDef)) return typeDef;
+  if (isArrayType(typeDef) && typeDef.ItemType && isEnumType(typeDef.ItemType))
+    return typeDef.ItemType;
+  return undefined;
+}
+
+/**
  * Check if an enum has an integer backing type (int64, int32, etc).
  * This is important for proper type conversion in generated code.
  */
@@ -431,28 +441,47 @@ function computeFlagShorthands(
  * Get the flag description/help text.
  * Uses field description, enum options, and required status.
  */
-function getFlagDescription(field: FieldDef): string {
+function getFlagDescription(
+  field: FieldDef,
+  kind = inferKindNameForField(field),
+): string {
   let desc = "";
 
   // Start with field description or comments
+  // (backticks would make pflag show the quoted word as the value placeholder)
   if (field.Comments?.Description) {
-    desc = field.Comments.Description;
+    desc = field.Comments.Description.replace(/`/g, "'").trimEnd();
   }
 
+  let hints = "";
+  const addHint = (hint: string, bare = hint) => {
+    hints = hints ? `${hints} ${hint}` : desc ? hint : bare;
+  };
+
   // Add enum options
-  if (isEnumType(field.Type)) {
-    const enumHelp = getEnumHelpText(field.Type);
+  const enumType = flagEnumType(field.Type);
+  if (enumType) {
+    const enumHelp = getEnumHelpText(enumType);
     if (enumHelp) {
-      desc = desc ? `${desc} (${enumHelp})` : enumHelp;
+      addHint(`(${enumHelp})`, enumHelp);
     }
+  }
+
+  // The pflag type column only shows "string"
+  if (isArrayType(field.Type) && kind === "FlagKindJSON") {
+    addHint("(JSON array)", "JSON array");
   }
 
   // Add required indicator
   if (!field.Optional) {
-    desc = desc ? `${desc} [required]` : "[required]";
+    addHint("[required]");
+  }
+
+  if (desc && hints) {
+    return `${desc}${desc.includes("\n") ? "\n" : " "}${hints}`;
   }
 
   // Fallback: show type hint instead of "No description available"
-  return desc || getTypeHint(field);
+  return desc || hints || getTypeHint(field);
 }
 registerTemplateFunc("getFlagDescription", getFlagDescription);

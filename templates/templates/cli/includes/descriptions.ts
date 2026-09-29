@@ -134,7 +134,7 @@ function hasExampleValue(field: FieldDef, val: any): boolean {
   return !(
     Array.isArray(val) &&
     val.length === 0 &&
-    isRepeatableFlagField(field)
+    isStringOrEnumItemArrayField(field)
   );
 }
 
@@ -202,6 +202,25 @@ function getCLIExampleValue(
     return exampleValueFor(field, field.Default.Value, false);
   }
 
+  return placeholderExampleValue(field);
+}
+
+function scalarPlaceholder(typeDef: TypeDef | undefined): string | undefined {
+  switch (typeDef?.Type?.toString()) {
+    case "boolean":
+      return "true";
+    case "integer":
+    case "int32":
+      return "123";
+    case "number":
+    case "float32":
+      return "3.14";
+    default:
+      return undefined;
+  }
+}
+
+function placeholderExampleValue(field: FieldDef): CLIExampleValue {
   const typeDef = field.Type;
 
   // Enum: use first value. A repeatable flag takes one value per occurrence,
@@ -219,19 +238,36 @@ function getCLIExampleValue(
     };
   }
 
-  // Type-appropriate placeholders
-  switch (typeDef.Type?.toString()) {
-    case "boolean":
-      return { Value: "true", SynthesizedAnglePlaceholder: false };
-    case "integer":
-    case "int32":
-      return { Value: "123", SynthesizedAnglePlaceholder: false };
-    case "number":
-    case "float32":
-      return { Value: "3.14", SynthesizedAnglePlaceholder: false };
-    default:
-      return { Value: "<value>", SynthesizedAnglePlaceholder: true };
+  // A JSON array flag takes the whole array as one token.
+  const itemTypeDef = isArrayType(typeDef) ? typeDef.ItemType : undefined;
+  if (
+    itemTypeDef?.Type?.toString() === "enum" &&
+    itemTypeDef.Enum?.Values?.length > 0
+  ) {
+    const first = itemTypeDef.Enum.Values[0];
+    return {
+      Value: isIntBackedEnum(itemTypeDef)
+        ? `[${first}]`
+        : JSON.stringify([String(first)]),
+      SynthesizedAnglePlaceholder: false,
+    };
   }
+  if (isStringOrEnumItemArrayField(field) && !isRepeatableFlagField(field)) {
+    return { Value: '["<value>"]', SynthesizedAnglePlaceholder: true };
+  }
+  const itemPlaceholder = scalarPlaceholder(itemTypeDef);
+  if (itemPlaceholder) {
+    return {
+      Value: `[${itemPlaceholder}]`,
+      SynthesizedAnglePlaceholder: false,
+    };
+  }
+
+  // Type-appropriate placeholders
+  const placeholder = scalarPlaceholder(typeDef);
+  return placeholder
+    ? { Value: placeholder, SynthesizedAnglePlaceholder: false }
+    : { Value: "<value>", SynthesizedAnglePlaceholder: true };
 }
 
 /**

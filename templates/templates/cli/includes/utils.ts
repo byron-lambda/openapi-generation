@@ -57,6 +57,14 @@ function getInputClassType(field: FieldDef): InputClassType {
 }
 registerTemplateFunc("getInputClassType", getInputClassType);
 
+function isNullableOptionalWrapped(field: FieldDef): boolean {
+  return Boolean(
+    field.Nullable &&
+      field.Optional &&
+      context.Global.Config.NullableOptionalWrapper,
+  );
+}
+
 // @ts-ignore
 function isPointerType(typeDef: TypeDef): boolean {
   return getPointerTypes().includes(typeDef.Type.toString());

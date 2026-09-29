@@ -1,0 +1,10 @@
+id: 1790653426-629a75aa
+features:
+    - core
+targets:
+    - cli
+type: feat
+bump: minor
+description: 'add cli.arrayFlagFormat, repeatable (default) or json, for string and enum array flags; json registers each as a single flag taking a JSON array, e.g. --tags ''["a","b"]'''
+author: 2ynn
+date: "2026-09-28"

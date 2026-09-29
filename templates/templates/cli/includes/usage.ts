@@ -230,21 +230,33 @@ function usageFlagSpec(
   return parts.join(" ");
 }
 
+// Only string/enum arrays can use FlagKindStringArray (cobra StringArray gives []string).
+// Typed arrays (int, float, bool) use FlagKindJSON since the runtime can't convert
+// string array elements to typed values via reflection.
+function isStringOrEnumItemArrayField(field: FieldDef): boolean {
+  if (!isArrayType(field.Type)) return false;
+  const itemTypeStr = field.Type.ItemType?.Type?.toString() || "string";
+  return itemTypeStr === "string" || itemTypeStr === "enum";
+}
+
 function inferKindNameForField(field: FieldDef, kindOverride?: string): string {
   const typeDef = field.Type;
   if (kindOverride) return kindOverride;
+  if (isNullableOptionalWrapped(field)) return "FlagKindJSON";
   if (isEnumType(typeDef)) {
     return isIntBackedEnum(typeDef) ? "FlagKindIntEnum" : "FlagKindEnum";
   }
   if (isArrayType(typeDef)) {
-    const itemTypeStr = typeDef.ItemType?.Type?.toString() || "string";
-    if (itemTypeStr === "string" || itemTypeStr === "enum") {
-      return "FlagKindStringArray";
-    }
-    return "FlagKindJSON";
+    return isStringOrEnumItemArrayField(field) &&
+      arrayFlagFormat() === "repeatable"
+      ? "FlagKindStringArray"
+      : "FlagKindJSON";
   }
   if (typeDef.Type.toString() === "date-time") {
     return "FlagKindDateTime";
+  }
+  if (typeDef.Type.toString() === "bytes") {
+    return "FlagKindBytes";
   }
   switch (typeDef.Type.toString()) {
     case "string":
@@ -278,7 +290,7 @@ function usageFlagFromField(
       argName,
       kind === "FlagKindStringArray",
     ),
-    help: getFlagDescription(field),
+    help: getFlagDescription(field, kind),
   };
 
   if (field.Default?.Value !== undefined && field.Default?.Value !== null) {
@@ -378,12 +390,8 @@ function getOperationBodyFieldUsageFlags(op: Operation): UsageFlagDef[] {
         continue;
       }
 
-      if (
-        field.Nullable &&
-        field.Optional &&
-        context.Global.Config.NullableOptionalWrapper
-      ) {
-        flags.push(usageFlagFromField(field, flagName, "FlagKindJSON"));
+      if (isNullableOptionalWrapped(field)) {
+        flags.push(usageFlagFromField(field, flagName));
         continue;
       }
 
@@ -1696,11 +1704,7 @@ function getDiscriminatedUnionUsageTestCase(): DiscriminatedUnionUsageTestCase |
             firstVariantFlag: `${flagName}.${firstVariant.flagName}`,
           };
         }
-        if (
-          field.Nullable &&
-          field.Optional &&
-          context.Global.Config.NullableOptionalWrapper
-        ) {
+        if (isNullableOptionalWrapped(field)) {
           continue;
         }
         if (getInputClassType(field) === "MultipartRequestBody") continue;

@@ -328,6 +328,48 @@ function pushFlagArg(
   args.push(`"--${flagName}"`, formatted);
 }
 
+function pushFieldFlagArgs(
+  args: string[],
+  field: FieldDef,
+  flagName: string,
+  value: any,
+): void {
+  const elements = sendableArrayExample(field, value);
+  if (Array.isArray(elements) && isRepeatableFlagField(field)) {
+    for (const element of elements) {
+      pushFlagArg(args, flagName, formatCLIArgValue(element));
+    }
+    return;
+  }
+  pushFlagArg(args, flagName, formatCLIArgValue(elements));
+}
+
+// An empty example is kept unless the flag cannot send it.
+function sendableArrayExample(field: FieldDef, value: any): any {
+  if (
+    !Array.isArray(value) ||
+    value.length > 0 ||
+    !isArrayType(field.Type) ||
+    field.Optional ||
+    !(isRepeatableFlagField(field) || field.Annotations?.Has("param"))
+  ) {
+    return value;
+  }
+  const fallback = emptyArrayExampleFallback(field);
+  return fallback.length > 0 ? fallback : value;
+}
+
+function emptyArrayExampleFallback(field: FieldDef): any[] {
+  const { Value } = placeholderExampleValue(field);
+  if (isRepeatableFlagField(field)) return [Value];
+  try {
+    const parsed = JSON.parse(String(Value));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (_err) {
+    return [];
+  }
+}
+
 // Format a value as a Go string literal for CLI args
 // @ts-ignore
 function formatCLIArgValue(value: any): string {
@@ -362,7 +404,7 @@ function formatCLIArgValueAsJSON(value: any): string {
  */
 function fieldNeedsJSONFormat(field: FieldDef): boolean {
   // Nullable+optional fields use OptionalNullable wrapper → FlagKindJSON
-  if (field.Nullable && field.Optional) return true;
+  if (inferKindNameForField(field) === "FlagKindJSON") return true;
   const ft = field.Type?.Type?.toString() || "";
   if (
     ft === "any" ||
@@ -373,17 +415,7 @@ function fieldNeedsJSONFormat(field: FieldDef): boolean {
   ) {
     return true;
   }
-  if (ft === "class" && !shouldExpandNestedField(field)) {
-    return true;
-  }
-  if (ft === "array") {
-    const itemType = field.Type?.ItemType?.Type?.toString() || "";
-    // Only string/enum arrays use FlagKindStringArray — everything else is FlagKindJSON
-    if (itemType !== "string" && itemType !== "enum") {
-      return true;
-    }
-  }
-  return false;
+  return ft === "class" && !shouldExpandNestedField(field);
 }
 
 // Helper to find an example, falling back to first available if named one not found
@@ -948,9 +980,13 @@ function templateCLIArgs(usageContext: UsageContext): string {
             });
             pushFlagArg(args, flagName, `"${filePaths.join(",")}"`);
           } else if (fieldNeedsJSONFormat(formField)) {
-            pushFlagArg(args, flagName, formatCLIArgValueAsJSON(value));
+            pushFlagArg(
+              args,
+              flagName,
+              formatCLIArgValueAsJSON(sendableArrayExample(formField, value)),
+            );
           } else {
-            pushFlagArg(args, flagName, formatCLIArgValue(value));
+            pushFieldFlagArgs(args, formField, flagName, value);
           }
         }
       }
@@ -1016,17 +1052,23 @@ function templateCLIArgs(usageContext: UsageContext): string {
                 if (fieldNeedsJSONFormat(subField)) {
                   args.push(
                     `"--${subFlagName}"`,
-                    formatCLIArgValueAsJSON(subValue),
+                    formatCLIArgValueAsJSON(
+                      sendableArrayExample(subField, subValue),
+                    ),
                   );
                 } else {
-                  pushFlagArg(args, subFlagName, formatCLIArgValue(subValue));
+                  pushFieldFlagArgs(args, subField, subFlagName, subValue);
                 }
               }
             }
           } else if (fieldNeedsJSONFormat(field)) {
-            pushFlagArg(args, flagName, formatCLIArgValueAsJSON(value));
+            pushFlagArg(
+              args,
+              flagName,
+              formatCLIArgValueAsJSON(sendableArrayExample(field, value)),
+            );
           } else {
-            pushFlagArg(args, flagName, formatCLIArgValue(value));
+            pushFieldFlagArgs(args, field, flagName, value);
           }
         }
       }
@@ -1131,10 +1173,12 @@ function templateCLIArgs(usageContext: UsageContext): string {
             } else if (fieldNeedsJSONFormat(subField)) {
               args.push(
                 `"--${subFlagName}"`,
-                formatCLIArgValueAsJSON(subValue),
+                formatCLIArgValueAsJSON(
+                  sendableArrayExample(subField, subValue),
+                ),
               );
             } else {
-              pushFlagArg(args, subFlagName, formatCLIArgValue(subValue));
+              pushFieldFlagArgs(args, subField, subFlagName, subValue);
             }
           }
           continue;
@@ -1187,9 +1231,7 @@ function templateCLIArgs(usageContext: UsageContext): string {
         const flagName = sanitizeFlagNameWithReserved(field.Name);
 
         // Format the value for CLI
-        const formattedValue = formatCLIArgValue(exampleValue);
-
-        pushFlagArg(args, flagName, formattedValue);
+        pushFieldFlagArgs(args, field, flagName, exampleValue);
       }
     }
   }
@@ -1381,7 +1423,7 @@ function templateCLIArgsStdin(usageContext: UsageContext): string {
       if (exampleValue === undefined) continue;
 
       const flagName = sanitizeFlagNameWithReserved(field.Name);
-      pushFlagArg(args, flagName, formatCLIArgValue(exampleValue));
+      pushFieldFlagArgs(args, field, flagName, exampleValue);
     }
   }
 

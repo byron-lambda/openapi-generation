@@ -203,6 +203,15 @@ function serverSelectionFlag(): "visible" | "hidden" | "none" {
 }
 registerTemplateFunc("serverSelectionFlag", serverSelectionFlag);
 
+// arrayFlagFormat is the gen.yaml input format for string and enum array
+// flags (repeatable|json; repeatable when unset or invalid).
+// @ts-ignore
+function arrayFlagFormat(): "repeatable" | "json" {
+  return context.Global.Config.ArrayFlagFormat === "json"
+    ? "json"
+    : "repeatable";
+}
+
 // defaultColorMode is the gen.yaml default for the --color flag
 // (auto|always|never; auto when unset or invalid).
 // @ts-ignore

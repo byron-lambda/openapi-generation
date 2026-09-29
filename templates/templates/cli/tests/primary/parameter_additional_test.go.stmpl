@@ -184,3 +184,29 @@ func TestRepeatableQueryParamExampleSendsArrayElements(t *testing.T) {
 	require.True(t, ok, "ids must be repeated in the query: %s", h.GetStdout())
 	assert.Equal(t, []interface{}{"1", "2"}, ids)
 }
+
+func TestOptionalNullableArrayParamTakesJSONArray(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, []string{
+		"parameters", "optional-nullable-array-params",
+		"--array-header-param", `["a","b"]`,
+	}))
+	assert.Equal(t, "a,b", jsonGetString(h.GetStdout(), "headers.Array-Header-Param"))
+}
+
+func TestOptionalNullableArrayParamHelpShowsJSONArrayHint(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"parameters", "optional-nullable-array-params", "--help"}))
+	assert.Contains(t, h.GetStdout(), "comma-delimited header value. (JSON array)")
+}
+
+func TestOptionalNullableArrayParamNotVariadicInUsageSchema(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"parameters", "optional-nullable-array-params", "--usage"}))
+	stdout := h.GetStdout()
+	assert.Contains(t, stdout, "--array-header-param <array_header_param>")
+	assert.NotContains(t, stdout, "<array_header_param...>")
+}

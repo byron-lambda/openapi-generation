@@ -1,15 +1,19 @@
 package tests
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"{{getGolangPackage}}/internal/cli"
+	"{{getGolangPackage}}/internal/clierrors"
 )
 
 // --- JSON Map of Any ---
@@ -403,4 +407,72 @@ func TestRepeatableFlagExampleSendsArrayElements(t *testing.T) {
 	channels, ok := jsonGet(h.GetStdout(), "json.channels").([]interface{})
 	require.True(t, ok, "channels must be an array: %s", h.GetStdout())
 	assert.Equal(t, []interface{}{"email"}, channels)
+}
+
+func TestRepeatableEnumArrayFlagRejectsUnknownValue(t *testing.T) {
+	var requests atomic.Int32
+	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		requests.Add(1)
+	}))
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	err := h.RunWithServer(s.URL, []string{
+		"request-bodies", "cli-repeatable-flag-examples-post",
+		"--labels", "nightly",
+		"--events", "item.created",
+		"--events", "bogus",
+		"--weights", "[1]",
+		"--channels", "email",
+	})
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid value for --events: "bogus"; valid options: item.created, item.deleted`)
+	assert.Equal(t, clierrors.ExitUsage, clierrors.ExitCode(err))
+	assert.Zero(t, requests.Load(), "no request must be sent with an unknown enum value")
+}
+
+func TestIntEnumArrayFlagIsRepeatable(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	args := []string{
+		"request-bodies", "cli-repeatable-flag-examples-post",
+		"--labels", "nightly",
+		"--events", "item.created",
+		"--weights", "[1]",
+		"--channels", "email",
+	}
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, append(args, "--levels", "2", "--levels", "3")))
+	levels, ok := jsonGet(h.GetStdout(), "json.levels").([]interface{})
+	require.True(t, ok, "levels must be an array: %s", h.GetStdout())
+	assert.Equal(t, []interface{}{2.0, 3.0}, levels)
+
+	h = NewCLITestHarness(t)
+	err := h.RunWithServer(s.URL, append(args, "--levels", "2", "--levels", "9"))
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid value for --levels: "9"; valid options: 1, 2, 3`)
+	assert.Equal(t, clierrors.ExitUsage, clierrors.ExitCode(err))
+}
+
+func TestRepeatableEnumArrayFlagHelpListsOptions(t *testing.T) {
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunBare([]string{"request-bodies", "cli-repeatable-flag-examples-post", "--help"}))
+	assert.Contains(t, h.GetStdout(), "(options: item.created, item.deleted)")
+}
+
+func TestMultipartNullableArrayTakesJSONArray(t *testing.T) {
+	s := newEchoServer()
+	defer s.Close()
+
+	h := NewCLITestHarness(t)
+	require.NoError(t, h.RunWithServer(s.URL, []string{
+		"request-bodies", "request-body-post-multipart-nullable-array-with-encoding",
+		"--tags", `["a","b"]`,
+	}))
+	data := jsonGetString(h.GetStdout(), "data")
+	assert.Equal(t, 2, strings.Count(data, `name="tags"`), "each element must be its own part: %s", data)
+	assert.Contains(t, data, "name=\"tags\"\r\n\r\na\r\n")
+	assert.Contains(t, data, "name=\"tags\"\r\n\r\nb\r\n")
+	assert.NotContains(t, data, `["a","b"]`)
 }
