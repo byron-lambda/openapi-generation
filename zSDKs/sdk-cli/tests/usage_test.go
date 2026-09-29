@@ -3,6 +3,7 @@
 package tests
 
 import (
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -132,6 +133,40 @@ func TestUsageSchema_Root(t *testing.T) {
 	assert.Contains(t, stdout, "cmd \"version\"")
 	assertWellFormedKDLStrings(t, stdout)
 	assert.Empty(t, stderr)
+}
+
+func TestUsageExamplesStartWithCommandPath(t *testing.T) {
+	root, err := cli.NewRootCommand()
+	require.NoError(t, err)
+
+	invocation := root.Name() + " "
+	var generatedCommands int
+	var walk func(cmd *cobra.Command)
+	walk = func(cmd *cobra.Command) {
+		if _, generated := cmd.Annotations["speakeasy_operation"]; generated {
+			generatedCommands++
+			if cmd.Example != "" {
+				path := cmd.CommandPath()
+				var checked int
+				for _, line := range strings.Split(cmd.Example, "\n") {
+					line = strings.TrimSpace(line)
+					if !strings.HasPrefix(line, invocation) {
+						continue
+					}
+					checked++
+					assert.Truef(t, line == path || strings.HasPrefix(line, path+" "),
+						"example for %q must invoke that command: %s", path, line)
+				}
+				assert.Greaterf(t, checked, 0,
+					"example for %q must include an invocation beginning with %q", path, invocation)
+			}
+		}
+		for _, child := range cmd.Commands() {
+			walk(child)
+		}
+	}
+	walk(root)
+	require.Greater(t, generatedCommands, 0)
 }
 
 func TestUsageSchema_Subtree(t *testing.T) {

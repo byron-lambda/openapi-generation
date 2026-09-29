@@ -520,7 +520,6 @@ function getOperationCommandJobs(
           Op: operation,
           Package: pkgName,
           SubSDKAccessor: subSDKAccessor,
-          GroupCommandName: groupCommandName,
           OpCommandName: opCommandName,
           PromotedToParent: promotedToParent,
           Aliases: opAliases,
