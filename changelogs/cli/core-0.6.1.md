@@ -1,0 +1,3 @@
+## core: 0.6.1 - 2026-09-29
+### :bug: Bug Fixes
+- array flags in every CLI: integer enum array flags parse their values instead of failing; enum-item array flags reject values outside the item enum and list their options in help; JSON array flags reject non-array input, null on a required field, a null element in a non-nullable array, and an empty array on a required query or header parameter; optional nullable multipart fields and expanded union-variant fields take a JSON value instead of failing to set the field; JSON flags with an object or array default register it as JSON *(commit by [@2ynn](https://github.com/2ynn))*
