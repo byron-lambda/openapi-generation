@@ -40,7 +40,7 @@ const supportedFeatures = {
   oauth2ClientCredentials: "0.0.1",
   webhooks: "0.0.0",
   callbacks: "0.0.0",
-  responseFormat: "0.1.1",
+  responseFormat: "0.1.2",
   sdkHooks: "0.0.1",
   customSecuritySchemes: "0.0.0",
   oauth2Password: "0.0.1",

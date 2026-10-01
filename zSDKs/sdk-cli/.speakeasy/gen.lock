@@ -35,7 +35,7 @@ features:
     oauth2ClientCredentials: 0.0.1
     openEnums: 0.0.0
     pagination: 0.2.0
-    responseFormat: 0.1.1
+    responseFormat: 0.1.2
     retries: 0.1.0
     serverEvents: 0.1.0
     serverIDs: 0.0.0
