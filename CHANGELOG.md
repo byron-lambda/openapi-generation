@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.943.3] - 2026-10-01
+### :bug: Bug Fixes
+- [`225f05e`](https://github.com/speakeasy-api/openapi-generation/commit/225f05effef6dbbb3205323182c11bcf5bc42374) - **cli**: render list response items in table output ([#55](https://github.com/speakeasy-api/openapi-generation/pull/55)) *(commit by [@ThomasRooney](https://github.com/ThomasRooney))*
+
+
 ## [v2.943.2] - 2026-10-01
 ### :bug: Bug Fixes
 - [`a851480`](https://github.com/speakeasy-api/openapi-generation/commit/a851480307cbe69720e9587c5bfbba02e2c73547) - **cli**: terminate TOON output with a trailing newline ([#54](https://github.com/speakeasy-api/openapi-generation/pull/54)) *(commit by [@ThomasRooney](https://github.com/ThomasRooney))*
@@ -20301,3 +20306,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.943.0]: https://github.com/speakeasy-api/openapi-generation/compare/v2.942.0...v2.943.0
 [v2.943.1]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.0...v2.943.1
 [v2.943.2]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.1...v2.943.2
+[v2.943.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.2...v2.943.3
