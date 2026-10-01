@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.943.4] - 2026-10-01
+### :wrench: Chores
+- [`5b8332c`](https://github.com/speakeasy-api/openapi-generation/commit/5b8332c479565e6dc1a48b54b3bfa2126d808da7) - match SDK Feature Matrix generator to the published docs page ([#52](https://github.com/speakeasy-api/openapi-generation/pull/52)) *(commit by [@alx-xo](https://github.com/alx-xo))*
+
+
 ## [v2.943.3] - 2026-10-01
 ### :bug: Bug Fixes
 - [`225f05e`](https://github.com/speakeasy-api/openapi-generation/commit/225f05effef6dbbb3205323182c11bcf5bc42374) - **cli**: render list response items in table output ([#55](https://github.com/speakeasy-api/openapi-generation/pull/55)) *(commit by [@ThomasRooney](https://github.com/ThomasRooney))*
@@ -20307,3 +20312,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.943.1]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.0...v2.943.1
 [v2.943.2]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.1...v2.943.2
 [v2.943.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.2...v2.943.3
+[v2.943.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.3...v2.943.4
