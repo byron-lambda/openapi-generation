@@ -232,6 +232,9 @@ func encodeTOON(content interface{}) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("failed to encode response as TOON: %w", err)
 	}
+	if toonStr != "" && !strings.HasSuffix(toonStr, "\n") {
+		toonStr += "\n"
+	}
 	return toonStr, nil
 }
 
