@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.943.6] - 2026-10-02
+### :bug: Bug Fixes
+- [`084fe46`](https://github.com/speakeasy-api/openapi-generation/commit/084fe46da2f9ab748c71b2c5a984b56355bbd6f7) - **cli**: classify explore flag conflicts as validation errors ([#62](https://github.com/speakeasy-api/openapi-generation/pull/62)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
+
+
 ## [v2.943.5] - 2026-10-02
 ### :bug: Bug Fixes
 - [`083b812`](https://github.com/speakeasy-api/openapi-generation/commit/083b812b05dd98af2da5f7f5513a4636c7b74a5d) - **cli**: check release tags against generated versions ([#63](https://github.com/speakeasy-api/openapi-generation/pull/63)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
@@ -20319,3 +20324,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.943.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.2...v2.943.3
 [v2.943.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.3...v2.943.4
 [v2.943.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.4...v2.943.5
+[v2.943.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.5...v2.943.6
