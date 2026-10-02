@@ -822,11 +822,13 @@ cli list-items --all --max-pages 5
 | Yes (e.g., offset/limit with `resultArray`)                      | Extracts items from the results array, streams one item per line |
 | No (e.g., cursor pagination without explicit results output)     | Outputs the entire content object per page                       |
 
+Under `--output-format table`, items extracted from the results array are collected across every page and rendered once as a single aligned table with one header; every other format streams items as they arrive. Collection applies when the results items are objects with declared properties; free-form items stream per page and each renders as its own key/value table. Without a results path, each page's content object renders as its own key/value table. A null entry is skipped when the items are pointers and renders as zero values otherwise; an item the table renderer cannot display at all (no scalar fields) falls back to the pretty form instead of aborting the output. If a later page fails or the run is interrupted, the rows collected so far are rendered before the error is reported.
+
 **Design choices**:
 
 - `--all` branch is placed **before** `WithSkipDeserialization()` — the SDK needs full deserialization to set up `Next()`
 - `--all` branch is placed **before** `DrainRawBody()` — `Next()` closures need the response body
-- Results are streamed (not buffered) — safe for large result sets
+- Results are streamed (not buffered) — safe for large result sets. `table` output is the one exception: rows are collected across pages so columns align, so pair it with `--max-pages` on very large result sets
 - `ctx.Done()` is checked each iteration for clean cancellation
 - For supported non-polling pagination, `--timeout` applies per page: `Next()` runs with the caller's context, not the first request's timed-out context
 - `--max-pages` is valid only with `--all`; negative values fail before client construction, and `0` means unlimited
