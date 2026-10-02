@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.943.7] - 2026-10-02
+### :bug: Bug Fixes
+- [`0cdc850`](https://github.com/speakeasy-api/openapi-generation/commit/0cdc85030c72016646de289938909036821b9f04) - **cli**: omit inherited body flags from intent commands ([#64](https://github.com/speakeasy-api/openapi-generation/pull/64)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
+
+
 ## [v2.943.6] - 2026-10-02
 ### :bug: Bug Fixes
 - [`084fe46`](https://github.com/speakeasy-api/openapi-generation/commit/084fe46da2f9ab748c71b2c5a984b56355bbd6f7) - **cli**: classify explore flag conflicts as validation errors ([#62](https://github.com/speakeasy-api/openapi-generation/pull/62)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
@@ -20325,3 +20330,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.943.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.3...v2.943.4
 [v2.943.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.4...v2.943.5
 [v2.943.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.5...v2.943.6
+[v2.943.7]: https://github.com/speakeasy-api/openapi-generation/compare/v2.943.6...v2.943.7
