@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.944.6] - 2026-10-05
+### :bug: Bug Fixes
+- [`bed475c`](https://github.com/speakeasy-api/openapi-generation/commit/bed475cb8472edb2c6553551a4483db229b87ba8) - **cli**: rewrite the async poll progress line in place on a terminal ([#60](https://github.com/speakeasy-api/openapi-generation/pull/60)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
+
+
 ## [v2.944.5] - 2026-10-05
 ### :bug: Bug Fixes
 - [`2f1dd44`](https://github.com/speakeasy-api/openapi-generation/commit/2f1dd44192dfbe7198a7498480b77e2400976362) - **php**: qualify enum defaults in model constructors ([#71](https://github.com/speakeasy-api/openapi-generation/pull/71)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
@@ -20373,3 +20378,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.944.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.2...v2.944.3
 [v2.944.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.3...v2.944.4
 [v2.944.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.4...v2.944.5
+[v2.944.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.5...v2.944.6
