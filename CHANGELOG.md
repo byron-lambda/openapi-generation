@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.945.1] - 2026-10-05
+### :bug: Bug Fixes
+- [`85584da`](https://github.com/speakeasy-api/openapi-generation/commit/85584da672111c41e46a4c4aa5741201353b3571) - **cli**: correct empty request body examples and flags ([#69](https://github.com/speakeasy-api/openapi-generation/pull/69)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
+
+
 ## [v2.945.0] - 2026-10-05
 ### :bee: New Features
 - [`7956b89`](https://github.com/speakeasy-api/openapi-generation/commit/7956b895a93964dec8b0818ae9db6b506bbbbca3) - **cli**: derive catalog defaults and validate enum groups ([#66](https://github.com/speakeasy-api/openapi-generation/pull/66)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
@@ -20391,3 +20396,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.944.6]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.5...v2.944.6
 [v2.944.7]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.6...v2.944.7
 [v2.945.0]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.7...v2.945.0
+[v2.945.1]: https://github.com/speakeasy-api/openapi-generation/compare/v2.945.0...v2.945.1
