@@ -18,15 +18,19 @@ Generates a fully functional Go CLI from an OpenAPI specification. The generated
     - [Positional path parameter](#positional-path-parameter)
   - [Metadata-Driven Request Building](#metadata-driven-request-building)
   - [Flag Metadata Generation](#flag-metadata-generation)
+
   - [Union Type Handling](#union-type-handling)
   - [Declarative Intent Commands and Route Dispatch](#declarative-intent-commands-and-route-dispatch)
+  - [Offline Enum Catalogs](#offline-enum-catalogs)
   - [Output Formatting](#output-formatting)
+
   - [Interactive Mode](#interactive-mode)
   - [Agent Mode](#agent-mode)
   - [Exit Codes and Error Boundaries](#exit-codes-and-error-boundaries)
   - [Pagination](#pagination)
   - [Streaming (SSE \& JSONL)](#streaming-sse--jsonl)
     - [Streamed-event projection (`x-speakeasy-cli-commands` `output.stream.select`)](#streamed-event-projection-x-speakeasy-cli-commands-outputstreamselect)
+
   - [Binary Downloads](#binary-downloads)
   - [Bytes / Base64 Request Input](#bytes--base64-request-input)
   - [Retries \& Timeout](#retries--timeout)
@@ -575,6 +579,86 @@ Selection happens before route-local presets or schema defaults are applied. Aft
 JSON-body intent commands, including single-route commands, never register backing request-body metadata: no inherited whole-union JSON flag, expanded body fields, or body defaults. They retain non-body path/query/header metadata, operation security, the JSON body flag, `--schema`, and declared flags. Body-less intents retain their parameter flags; multipart intents retain their upload fields because they have no JSON body escape. Use the generated operation command for the full JSON body-field flag surface. Dispatch help puts route-specific flags under `<Label> variant Flags:` (or `A / B variants` for a strict multi-route subset), leaves shared flags ungrouped, and appends the anchor/default summary. The static `--usage` KDL contains exactly the same surface.
 
 `override: true` replaces only the generated registration at the operation's exact canonical command path. The command must target that same operation, cover every component member, and replace a non-promoted leaf. The operation file is still generated so the intent reuses its metadata and run function. Runtime registration, KDL usage, generated README command trees and examples all omit the generated operation entry and insert the intent in manifest order; generated Arazzo tests that still encode the removed flag surface are skipped, while dedicated intent tests cover the replacement. Without `override`, the generated operation remains available as the full-control escape.
+
+### Offline Enum Catalogs
+
+**Files**: `includes/templating.ts` (`collectCliCatalogs`), `catalog.go.stmpl`, and `main.ts`
+
+An enum schema annotated with `x-speakeasy-cli-catalog` generates an offline listing command. The catalog extension accepts `command`, `summary`, `description`, and the existing scalar `default`. Command-specific defaults come from actual command presets, not a second catalog configuration. Groups are schema metadata declared with `x-speakeasy-enum-groups`, alongside enum descriptions.
+
+For example, these commands share one enum, but select different options by default:
+
+```yaml
+openapi: 3.1.0
+info: {title: Widget API, version: 1.0.0}
+x-speakeasy-cli-commands:
+  version: 1
+  commands:
+    create-widget:
+      op: createWidget
+      preset: {$.mode: alpha}
+    inspect-widget:
+      op: createWidget
+      preset: {$.mode: alpha}
+    render-widget:
+      op: createWidget
+      preset: {$.mode: gamma}
+paths:
+  /widgets:
+    post:
+      operationId: createWidget
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mode: {$ref: "#/components/schemas/WidgetMode"}
+      responses:
+        "200": {description: OK}
+components:
+  schemas:
+    WidgetMode:
+      type: string
+      enum: [alpha, beta, gamma, delta]
+      x-speakeasy-enum-descriptions:
+        alpha: First option.
+        beta: Second option.
+        gamma: Third option.
+        delta: Fourth option.
+      x-speakeasy-enum-groups:
+        alpha: Primary
+        beta: Primary
+        gamma: Secondary
+      x-speakeasy-cli-catalog:
+        command: widget-options
+        summary: List available widget options
+```
+
+`cli widget-options` displays:
+
+```text
+Primary:
+  alpha (default: create-widget, inspect-widget)   First option.
+  beta                                             Second option.
+
+Secondary:
+  gamma (default: render-widget)                   Third option.
+
+Other:
+  delta                                            Fourth option.
+```
+
+Each enum value becomes one `CliCatalogValue` row. `CliCatalog.Groups` organises those same rows into human-output sections; `CliCatalog.Values` flattens them in the same order for machine output. Grouping does not create additional enum values or change request values.
+
+- Go links each effective preset to its resolved enum schema, including references and array-item enums. Route-local presets override command presets. When a command's routes select different defaults, labels include the actual route selector, such as `create --image`; defaults shared by every route use the plain command name. Unknown values accepted by an open enum are not catalog entries, and ambiguous property unions do not assign a preset to unrelated catalogs.
+- Only the scalar catalog `default` sets the existing machine-output `default` boolean. It remains independent of schema defaults and command presets. Command defaults produce `<value> (default: <command>, ...)`; otherwise the scalar catalog default produces `<value> (default)`.
+- `x-speakeasy-enum-groups` accepts a value-to-title map, or a positional string list matching the original enum length, for example `[Primary, Primary, Secondary, ""]`. The list includes slots for null and duplicate enum members; null slots do not create rows and duplicate values use their first non-empty title. Go validates the extension before rendering. Unknown values, duplicate map keys, non-string titles, malformed shapes and wrong-length lists are errors. Titles are trimmed; missing map entries and empty titles are ungrouped.
+- Groups appear in first-seen enum order, and values within each group retain enum order. If at least one group exists, remaining values appear in a trailing `Other` section, unless a group is already titled `Other`. In that case, the remaining values join that group in enum order without changing its section position. If all titles are empty or no groups are declared, output stays flat without `group` fields.
+- Grouped human output uses `<title>:` headings, two-space indentation and a blank line between groups. Effective command defaults or groups use a label width of `max(42, longest label length + 2)`. Catalogs without either retain the original fixed width of 42, including legacy long-label spacing.
+- Machine output remains a flat array with `value`, `description` and `default`. Non-empty command defaults add `default_for`; grouped catalogs add `group`, including the `Other` remainder.
+
+The nested catalog `defaults` and `groups` keys are not supported. Use command presets and the schema-level enum group extension instead.
 
 ### Output Formatting
 
