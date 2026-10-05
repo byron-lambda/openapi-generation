@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.944.5] - 2026-10-05
+### :bug: Bug Fixes
+- [`2f1dd44`](https://github.com/speakeasy-api/openapi-generation/commit/2f1dd44192dfbe7198a7498480b77e2400976362) - **php**: qualify enum defaults in model constructors ([#71](https://github.com/speakeasy-api/openapi-generation/pull/71)) *(commit by [@TristanSpeakEasy](https://github.com/TristanSpeakEasy))*
+
+
 ## [v2.944.4] - 2026-10-02
 ### :bug: Bug Fixes
 - [`8ceec68`](https://github.com/speakeasy-api/openapi-generation/commit/8ceec68e594f12383abfd6b3665bba91b4780aca) - **cli**: render --all pagination results as one table under --output-format table ([#58](https://github.com/speakeasy-api/openapi-generation/pull/58)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
@@ -20367,3 +20372,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.944.2]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.1...v2.944.2
 [v2.944.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.2...v2.944.3
 [v2.944.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.3...v2.944.4
+[v2.944.5]: https://github.com/speakeasy-api/openapi-generation/compare/v2.944.4...v2.944.5
