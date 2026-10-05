@@ -746,3 +746,4 @@ security-ranking-source-rank,:question_mark:,:white_check_mark:,:question_mark:,
 event-stream-with-operation-timeout-streams-to-completion,:question_mark:,:question_mark:,:question_mark:,:white_check_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:
 jsonl-stream-timeout-still-bounds-slow-stream,:question_mark:,:question_mark:,:question_mark:,:white_check_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:
 jsonl-stream-with-timeout-streams-to-completion,:question_mark:,:question_mark:,:question_mark:,:white_check_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:
+shared-enum-constructor-default,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:question_mark:,:warning:,:question_mark:,:question_mark:,:question_mark:,:question_mark:
