@@ -16,7 +16,7 @@ const supportedFeatures = {
   nameOverrides: "0.0.0",
   includes: "0.0.0",
   docs: "0.3.0",
-  examples: "0.1.0",
+  examples: "0.1.1",
   groups: "0.1.0",
   deprecations: "0.0.0",
   retries: "0.1.0",
