@@ -10,7 +10,7 @@ const supportedFeatures = {
   deepObjectParams: "0.1.0",
   deprecations: "0.1.0",
   downloadStreams: "0.1.0",
-  enums: "0.1.0",
+  enums: "0.1.1",
   errors: "0.2.0",
   errorUnions: "0.1.0",
   flattening: "0.1.0",

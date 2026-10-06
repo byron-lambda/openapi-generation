@@ -1096,33 +1096,37 @@ function sanitizeMap(typeDef: TypeDef, usageLocation: string): string {
 }
 
 // @ts-ignore
-function getEnumNamesFromValues(values) {
-  let enumNames = [];
+function getEnumNamesFromValues(values, format: "enum" | "union" = "union") {
+  return disambiguateEnumNames(values, (value) => getEnumName(value, format));
+}
 
-  let names = {};
-  for (const value of values) {
-    let name = getEnumName(value);
-    if (!names[name]) {
-      names[name] = 0;
-    }
-
-    names[name] += 1;
+function disambiguateEnumNames(
+  values: string[],
+  deriveName: (value: string) => string,
+): string[] {
+  const baseNames = values.map(deriveName);
+  const counts = new Map<string, number>();
+  for (const name of baseNames) {
+    counts.set(name, (counts.get(name) || 0) + 1);
   }
 
-  for (const value of values) {
-    let name = getEnumName(value);
-    if (names[name] > 1) {
-      name = `${name}${caser().ToPascal(getCasing(value))}`;
+  const used = new Set(baseNames.filter((name) => counts.get(name) === 1));
+  return values.map((value, i) => {
+    let name = baseNames[i];
+    if (counts.get(name) > 1) {
+      const candidate = `${name}${caser().ToPascal(getCasing(value))}`;
+      name = candidate;
+      for (let suffix = 1; used.has(name); suffix++) {
+        name = `${candidate}${suffix}`;
+      }
+      used.add(name);
     }
-
-    enumNames.push(name);
-  }
-
-  return enumNames;
+    return name;
+  });
 }
 
 // @ts-ignore
-function getEnumName(value) {
+function getEnumName(value, format: "enum" | "union" = "union") {
   let name = value.trim();
 
   if (name === "") {
@@ -1131,10 +1135,32 @@ function getEnumName(value) {
 
   name = sanitizeName(name);
 
-  return caser().ToPascal(name);
+  name = caser().ToPascal(name);
+  if (/^[0-9]/.test(name) && !keepsNumericEnumMemberName(name, format)) {
+    name = caser().ToPascal(sanitizeName(name));
+  }
+  return name;
 }
 
 registerTemplateFunc("getEnumName", getEnumName);
+
+// Matches a cased name that is a valid numeric literal property key in strict
+// mode: a decimal integer with an optional exponent, or a hex, binary or octal
+// literal. Leading zeros (`007`, `08`) are excluded because strict mode rejects
+// them, so those values are spelled out even under `legacy`.
+const numericLiteralKey =
+  /^(?:(?:0|[1-9][0-9]*)(?:[eE][0-9]+)?|0[xX][0-9a-fA-F]+|0[bB][01]+|0[oO][0-7]+)$/;
+
+function keepsNumericEnumMemberName(
+  name: string,
+  format: "enum" | "union",
+): boolean {
+  return (
+    format === "union" &&
+    context.Global.Config.NumericEnumMemberNames === "legacy" &&
+    numericLiteralKey.test(name)
+  );
+}
 
 function sanitizeZodName(name: string) {
   return sanitizeClassName(name) + "$";

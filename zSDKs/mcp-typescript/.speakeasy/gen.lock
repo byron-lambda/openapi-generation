@@ -6,7 +6,7 @@ management:
   speakeasyVersion: internal
   generationVersion: internal
   releaseVersion: 0.0.1
-  configChecksum: 7f1f041501e08ba8657f7296ff840fca
+  configChecksum: f5747e95ee98dab53dac436151673342
   repoURL: https://github.com/speakeasy-sdks/test-sdk
   installationURL: https://github.com/speakeasy-sdks/test-sdk
 features:
@@ -23,7 +23,7 @@ features:
     deprecations: 0.1.0
     docs: 0.3.3
     enumUnions: 0.1.0
-    enums: 0.1.0
+    enums: 0.1.1
     globalSecurity: 0.1.3
     globalSecurityCallbacks: 0.0.0
     globalServerURLs: 0.1.2

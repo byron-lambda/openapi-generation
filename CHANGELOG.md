@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.945.4] - 2026-10-06
+### :bug: Bug Fixes
+- [`79684fe`](https://github.com/speakeasy-api/openapi-generation/commit/79684fe00481e8d200a495704620f5ac91e57550) - **typescript,python,csharp,java,php,ruby,unity,mcp**: derive valid member names for underscore-digit enum values ([#70](https://github.com/speakeasy-api/openapi-generation/pull/70)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
+
+
 ## [v2.945.3] - 2026-10-06
 ### :bug: Bug Fixes
 - [`95c8b37`](https://github.com/speakeasy-api/openapi-generation/commit/95c8b37eac70431200a8f6bd7810ce05e89d003f) - **go,cli,terraform**: return the last retryable response when the deadline expires mid-retry ([#74](https://github.com/speakeasy-api/openapi-generation/pull/74)) *(commit by [@AshGodfrey](https://github.com/AshGodfrey))*
@@ -20409,3 +20414,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [v2.945.1]: https://github.com/speakeasy-api/openapi-generation/compare/v2.945.0...v2.945.1
 [v2.945.2]: https://github.com/speakeasy-api/openapi-generation/compare/v2.945.1...v2.945.2
 [v2.945.3]: https://github.com/speakeasy-api/openapi-generation/compare/v2.945.2...v2.945.3
+[v2.945.4]: https://github.com/speakeasy-api/openapi-generation/compare/v2.945.3...v2.945.4

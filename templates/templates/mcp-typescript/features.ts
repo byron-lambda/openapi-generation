@@ -12,7 +12,7 @@ const supportedFeatures = {
   defaultEnabledRetries: "0.1.0",
   deprecations: "0.1.0",
   docs: "0.3.3",
-  enums: "0.1.0",
+  enums: "0.1.1",
   enumUnions: "0.1.0",
   errorUnions: "0.1.0",
   globals: "0.1.0",

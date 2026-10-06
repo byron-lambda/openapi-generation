@@ -164,7 +164,11 @@ function sanitizeEnumName(value: string): string {
 
   name = sanitizeName(name);
 
-  return caser().ToPascal(name);
+  name = caser().ToPascal(name);
+  if (/^[0-9]/.test(name) && !keepsNumericEnumMemberName(name)) {
+    name = caser().ToPascal(sanitizeName(name));
+  }
+  return name;
 }
 
 // @ts-ignore
@@ -401,10 +405,28 @@ function getEnumName(value) {
 
   name = sanitizeName(name);
 
-  return caser().ToPascal(name);
+  name = caser().ToPascal(name);
+  if (/^[0-9]/.test(name) && !keepsNumericEnumMemberName(name)) {
+    name = caser().ToPascal(sanitizeName(name));
+  }
+  return name;
 }
 
 registerTemplateFunc("getEnumName", getEnumName);
+
+// Matches a cased name that is a valid numeric literal property key in strict
+// mode: a decimal integer with an optional exponent, or a hex, binary or octal
+// literal. Leading zeros (`007`, `08`) are excluded because strict mode rejects
+// them, so those values are spelled out even under `legacy`.
+const numericLiteralKey =
+  /^(?:(?:0|[1-9][0-9]*)(?:[eE][0-9]+)?|0[xX][0-9a-fA-F]+|0[bB][01]+|0[oO][0-7]+)$/;
+
+function keepsNumericEnumMemberName(name: string): boolean {
+  return (
+    context.Global.Config.NumericEnumMemberNames === "legacy" &&
+    numericLiteralKey.test(name)
+  );
+}
 
 // @ts-ignore
 function getEnumNames(t: TypeDef): string[] {
@@ -412,7 +434,7 @@ function getEnumNames(t: TypeDef): string[] {
     if (context.Global.Config.FixEnumNameSanitization === true) {
       return t.Enum.Names.map((n) => sanitizeName(n.trim() || "Unknown"));
     }
-    return t.Enum.Names.map((n) => getEnumName(n));
+    return getEnumNamesFromValues(t.Enum.Names);
   }
 
   return getEnumNamesFromValues(t.Enum?.Values);

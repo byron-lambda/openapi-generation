@@ -1,0 +1,95 @@
+openapi: 3.1.0
+security:
+  - apiKeyAuth: []
+  - oauth2: []
+  - clientCredentials: [read, write]
+  - customSchemeAppId: []
+  - basicHttp: []
+  - accessToken: []
+  - {}
+paths:
+  /enums/leading-underscore-digit:
+    get:
+      operationId: getEnumLeadingUnderscoreDigit
+      description: >-
+        Returns an object whose enum property has values that start with an
+        underscore followed by digits (`_1ST`, `_2FA`, `_3D`, `_10`), the shape
+        protobuf-derived documents use for numeric-looking identifiers. Checks
+        that every target derives a valid member name for such values instead
+        of emitting a digit-leading identifier that fails to compile or format.
+        `_10` is digits-only, which TypeScript may keep as a numeric key in a
+        union enum but must spell out in a native enum. A second property
+        supplies the same shape of name through `x-speakeasy-enums`, which
+        must also yield a valid member name. A third property pairs `_1ST`
+        with `1ST`: both derive `OneSt`-shaped names that differ only by
+        case, so targets that upper-snake their members (Java, Python,
+        Ruby) must detect the collision on the emitted member and suffix
+        it instead of declaring `ONE_ST` twice. A fourth property lists
+        `_1`, `1` and `OneUpper`: the first two derive the same name and
+        receive a casing suffix, which lands on `OneUpper`, the untouched
+        third member. Targets must reserve every emitted member name and
+        keep advancing the numeric suffix until the candidate is unused. A
+        fifth property supplies `_1` and `One` through `x-speakeasy-enums`,
+        which derive the same name once the digit is spelled out, so
+        override names must be disambiguated as a group the same way values
+        are.
+      tags:
+        - generation
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - accountType
+                properties:
+                  accountType:
+                    $ref: "#/components/schemas/LeadingUnderscoreDigitEnum"
+                  overriddenAccountType:
+                    $ref: "#/components/schemas/LeadingUnderscoreDigitOverrideEnum"
+                  collidingAccountType:
+                    $ref: "#/components/schemas/LeadingUnderscoreDigitCollisionEnum"
+                  suffixCollidingAccountType:
+                    $ref: "#/components/schemas/LeadingUnderscoreDigitSuffixCollisionEnum"
+                  overrideCollidingAccountType:
+                    $ref: "#/components/schemas/LeadingUnderscoreDigitOverrideCollisionEnum"
+components:
+  schemas:
+    LeadingUnderscoreDigitEnum:
+      type: string
+      enum:
+        - UNSPECIFIED
+        - _1ST
+        - _2FA
+        - _3D
+        - _10
+    LeadingUnderscoreDigitOverrideEnum:
+      type: string
+      enum:
+        - UNSPECIFIED
+        - _1ST
+      x-speakeasy-enums:
+        - UNSPECIFIED
+        - _1ST
+    LeadingUnderscoreDigitCollisionEnum:
+      type: string
+      enum:
+        - UNSPECIFIED
+        - _1ST
+        - 1ST
+    LeadingUnderscoreDigitSuffixCollisionEnum:
+      type: string
+      enum:
+        - _1
+        - "1"
+        - OneUpper
+    LeadingUnderscoreDigitOverrideCollisionEnum:
+      type: string
+      enum:
+        - first
+        - second
+      x-speakeasy-enums:
+        - _1
+        - One
