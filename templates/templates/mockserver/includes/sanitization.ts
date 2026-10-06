@@ -750,28 +750,43 @@ function templateFloatValue(
 
 // @ts-ignore
 function getEnumNamesFromValues(values: string[]): string[] {
-  let enumNames = [];
+  // Count collisions on the emitted field name, not the cased name:
+  // `_1ST` and `1ST` case to `1St` and `OneSt`, which differ, but both
+  // become `OneSt` once sanitizeFieldName rewrites the leading digit.
+  return disambiguateEnumNames(
+    values,
+    (value) => sanitizeFieldName(getEnumName(value)),
+    (value) =>
+      sanitizeFieldName(
+        `${getEnumName(value)}${caser().ToGoPascal(getCasing(value))}`,
+      ),
+  );
+}
 
-  let names = {};
-  for (const value of values) {
-    let name = getEnumName(value);
-    if (!names[name]) {
-      names[name] = 0;
-    }
-
-    names[name] += 1;
+function disambiguateEnumNames(
+  values: string[],
+  deriveName: (value: string) => string,
+  deriveCandidate: (value: string, name: string) => string,
+): string[] {
+  const baseNames = values.map(deriveName);
+  const counts = new Map<string, number>();
+  for (const name of baseNames) {
+    counts.set(name, (counts.get(name) || 0) + 1);
   }
 
-  for (const value of values) {
-    let name = getEnumName(value);
-    if (names[name] > 1) {
-      name = `${name}${caser().ToGoPascal(getCasing(value))}`;
+  const used = new Set(baseNames.filter((name) => counts.get(name) === 1));
+  return values.map((value, i) => {
+    let name = baseNames[i];
+    if (counts.get(name) > 1) {
+      const candidate = deriveCandidate(value, name);
+      name = candidate;
+      for (let suffix = 1; used.has(name); suffix++) {
+        name = `${candidate}${suffix}`;
+      }
+      used.add(name);
     }
-
-    enumNames.push(sanitizeFieldName(name));
-  }
-
-  return enumNames;
+    return name;
+  });
 }
 
 // @ts-ignore
