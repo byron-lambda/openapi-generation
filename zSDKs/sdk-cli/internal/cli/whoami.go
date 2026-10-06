@@ -22,6 +22,7 @@ Sources are shown as:
   [env]     - Set via environment variable (CLI_*)
   [keyring] - Set via OS keychain (stored by configure command)
   [config]  - Set via config file (~/.config/cli/config.yaml)
+  [default] - Built-in global parameter flag default
   [unset]   - Not configured
 
 Credential values are masked for security.`,
@@ -91,19 +92,19 @@ func runWhoamiCmd(cmd *cobra.Command, args []string) error {
 		info["credentials"] = credentials
 		parameters := map[string]any{}
 		{
-			value, source := config.ResolveCredential(cmd, "query-param1")
+			value, source := config.ResolveCredential(cmd, "query-param1", false)
 			parameters["query-param1"] = map[string]any{"source": source, "value": value}
 		}
 		{
-			value, source := config.ResolveCredential(cmd, "deprecated-query-param1")
+			value, source := config.ResolveCredential(cmd, "deprecated-query-param1", false)
 			parameters["deprecated-query-param1"] = map[string]any{"source": source, "value": value}
 		}
 		{
-			value, source := config.ResolveCredential(cmd, "deprecated-query-param2")
+			value, source := config.ResolveCredential(cmd, "deprecated-query-param2", false)
 			parameters["deprecated-query-param2"] = map[string]any{"source": source, "value": value}
 		}
 		{
-			value, source := config.ResolveCredential(cmd, "lone-query-param")
+			value, source := config.ResolveCredential(cmd, "lone-query-param", false)
 			parameters["lone-query-param"] = map[string]any{"source": source, "value": value}
 		}
 		info["global_parameters"] = parameters
@@ -190,25 +191,25 @@ func runWhoamiCmd(cmd *cobra.Command, args []string) error {
 
 	// A long winded, multi-line description
 	{
-		value, source := config.ResolveCredential(cmd, "query-param1")
+		value, source := config.ResolveCredential(cmd, "query-param1", false)
 		fmt.Fprintf(out, "  --%-25s [%-7s] %s\n", "query-param1", source, value)
 	}
 
 	// A deprecated description
 	{
-		value, source := config.ResolveCredential(cmd, "deprecated-query-param1")
+		value, source := config.ResolveCredential(cmd, "deprecated-query-param1", false)
 		fmt.Fprintf(out, "  --%-25s [%-7s] %s\n", "deprecated-query-param1", source, value)
 	}
 
 	// Global deprecated-query-param2 parameter
 	{
-		value, source := config.ResolveCredential(cmd, "deprecated-query-param2")
+		value, source := config.ResolveCredential(cmd, "deprecated-query-param2", false)
 		fmt.Fprintf(out, "  --%-25s [%-7s] %s\n", "deprecated-query-param2", source, value)
 	}
 
 	// Global lone-query-param parameter
 	{
-		value, source := config.ResolveCredential(cmd, "lone-query-param")
+		value, source := config.ResolveCredential(cmd, "lone-query-param", false)
 		fmt.Fprintf(out, "  --%-25s [%-7s] %s\n", "lone-query-param", source, value)
 	}
 
