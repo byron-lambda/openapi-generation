@@ -4,9 +4,14 @@ package output
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/spf13/cobra"
 )
 
 type tableTestRow struct {
@@ -28,5 +33,90 @@ func TestPrintTableDerivesColumnsFromFirstStructElement(t *testing.T) {
 	}
 	if got := strings.Fields(lines[1]); !reflect.DeepEqual(got, []string{"1", "alpha"}) {
 		t.Fatalf("unexpected row: %q", lines[1])
+	}
+}
+
+func TestAwaitAsyncDeadlineKeepsPollError(t *testing.T) {
+	cfg := &asyncConfig{Command: "wait", Backoff: 1, States: map[string]string{"pending": "pending"}}
+	timings := asyncTimings{interval: time.Millisecond, maxInterval: time.Millisecond, timeout: 500 * time.Millisecond}
+	apiErr := errors.New("rate limited")
+
+	for name, tc := range map[string]struct {
+		pollErr     func(context.Context) error
+		wantErr     error
+		wantTimeout bool
+	}{
+		"poll error other than the deadline is returned": {
+			pollErr: func(context.Context) error { return apiErr },
+			wantErr: apiErr,
+		},
+		"poll deadline error is a timeout": {
+			pollErr:     func(ctx context.Context) error { return ctx.Err() },
+			wantTimeout: true,
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			cmd := &cobra.Command{}
+			cmd.SetContext(context.Background())
+			pollCtx, cancel := context.WithTimeout(cmd.Context(), timings.timeout)
+			defer cancel()
+			poll := func(ctx context.Context) (interface{}, error) {
+				<-ctx.Done()
+				return nil, tc.pollErr(ctx)
+			}
+
+			outcome := awaitAsync(cmd, pollCtx, cfg, timings, "handle", "resume handle", time.Now(), poll, &asyncProgress{out: &bytes.Buffer{}})
+
+			if tc.wantTimeout {
+				if outcome.runtimeErr == nil || outcome.runtimeErr.reason != ReasonCLIAsyncTimeout {
+					t.Fatalf("expected an async timeout, got %+v", outcome)
+				}
+				return
+			}
+			if !errors.Is(outcome.err, tc.wantErr) || outcome.runtimeErr != nil {
+				t.Fatalf("expected the poll error, got %+v", outcome)
+			}
+			var fields interface{ MachineErrorFields() map[string]interface{} }
+			if !errors.As(outcome.err, &fields) {
+				t.Fatalf("expected the poll error to carry the operation handle, got %+v", outcome.err)
+			}
+			if got := fields.MachineErrorFields(); got["id"] != "handle" || got["resume"] != "resume handle" {
+				t.Fatalf("unexpected handle fields: %+v", got)
+			}
+		})
+	}
+}
+
+type pollAPIError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e *pollAPIError) Error() string { return e.Body }
+
+func TestUnclassifiedRenderersKeepPollHandle(t *testing.T) {
+	err := &asyncPollError{err: &pollAPIError{StatusCode: 429, Body: `{"message":"slow down","hints":["server hint"]}`}, id: "handle", resume: "wait\nhandle"}
+
+	for name, tc := range map[string]struct {
+		structured bool
+		want       []string
+	}{
+		"pretty":     {want: []string{"API Error (HTTP 429)", "Hint: Resume polling with: wait\n      handle"}},
+		"structured": {structured: true, want: []string{`"id": "handle"`, `"resume": "wait\nhandle"`, `"server hint",`, `"Resume polling with: wait\nhandle"`, `"status_code": 429`}},
+	} {
+		t.Run(name, func(t *testing.T) {
+			cmd := &cobra.Command{}
+			var stderr bytes.Buffer
+			cmd.SetErr(&stderr)
+
+			renderUnclassifiedAPIError(cmd, err, Classify(cmd, withErrorOrigin(err, ErrorOriginAPI)), tc.structured)
+
+			for _, want := range tc.want {
+				if !strings.Contains(stderr.String(), want) {
+					t.Fatalf("expected %q in rendered error, got:\n%s", want, stderr.String())
+				}
+			}
+		})
 	}
 }

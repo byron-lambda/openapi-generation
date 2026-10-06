@@ -565,6 +565,9 @@ func renderUnclassifiedPrettyAPIError(cmd *cobra.Command, err error, classificat
 	if classification.StatusCode == 401 || classification.StatusCode == 403 {
 		fmt.Fprintf(out, "\nHint: run '%s configure' to set up or update your credentials.\n", cliName)
 	}
+	for _, hint := range errorCLIHints(err) {
+		fmt.Fprintf(out, "\nHint: %s\n", strings.ReplaceAll(hint, "\n", "\n      "))
+	}
 }
 
 func renderUnclassifiedStructuredAPIError(cmd *cobra.Command, err error, classification Classification) {
@@ -611,6 +614,17 @@ func renderUnclassifiedStructuredAPIError(cmd *cobra.Command, err error, classif
 	}
 	if object, ok := envelope.(map[string]interface{}); ok {
 		object["exit_code"] = ExitCodeFor(classification)
+		mergeMachineErrorFields(object, err)
+		if hints := errorCLIHints(err); len(hints) > 0 {
+			merged := []interface{}{}
+			if existing, ok := object["hints"].([]interface{}); ok {
+				merged = append(merged, existing...)
+			}
+			for _, hint := range hints {
+				merged = append(merged, hint)
+			}
+			object["hints"] = merged
+		}
 	}
 	if wantsHeaders(cmd) {
 		envelope = injectHeaders(envelope, extractErrorResponseHeaders(err))

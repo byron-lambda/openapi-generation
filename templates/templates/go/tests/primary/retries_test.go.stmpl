@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"fmt"
@@ -216,6 +217,127 @@ func TestRetryAfterRespectsBackoffBudget(t *testing.T) {
 		assert.Nil(t, res)
 		require.IsType(t, &apierrors.APIError{}, err)
 		assert.Equal(t, http.StatusServiceUnavailable, err.(*apierrors.APIError).StatusCode)
+		assert.EqualValues(t, 1, requests.Load())
+	})
+
+	for name, config := range map[string]retry.Config{
+		"backoff": {
+			Strategy: "backoff",
+			Backoff: &retry.BackoffStrategy{
+				InitialInterval: 10,
+				MaxInterval:     50,
+				Exponent:        1.1,
+				MaxElapsedTime:  10000,
+			},
+		},
+		"attempt-count-backoff": {
+			Strategy: "attempt-count-backoff",
+			Backoff: &retry.BackoffStrategy{
+				InitialInterval: 10,
+				MaxInterval:     50,
+				Exponent:        1.1,
+			},
+			MaxRetries: sdk.Int(3),
+		},
+	} {
+		t.Run("context deadline during the wait returns the last response with "+name, func(t *testing.T) {
+			var requests atomic.Int32
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				requests.Add(1)
+				w.Header().Set("Retry-After", "2")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				w.(http.Flusher).Flush()
+				time.Sleep(20 * time.Millisecond)
+				_, _ = io.WriteString(w, "service unavailable")
+			}))
+			defer server.Close()
+
+			s := sdk.New(sdk.WithServerURL(server.URL), sdk.WithRetryConfig(config))
+
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			res, err := s.Retries.RetriesGet(ctx, pseudo_uuid(), nil, operations.WithServerURL(server.URL))
+
+			assert.Error(t, err)
+			assert.Nil(t, res)
+			require.IsType(t, &apierrors.APIError{}, err)
+			assert.Equal(t, http.StatusServiceUnavailable, err.(*apierrors.APIError).StatusCode)
+			assert.Equal(t, "service unavailable", err.(*apierrors.APIError).Body)
+			assert.EqualValues(t, 1, requests.Load())
+		})
+	}
+
+	t.Run("slow retryable body does not delay the next attempt", func(t *testing.T) {
+		var requests atomic.Int32
+		release := make(chan struct{})
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			if requests.Add(1) == 1 {
+				w.Header().Set("Retry-After-Ms", "50")
+				w.WriteHeader(http.StatusServiceUnavailable)
+				w.(http.Flusher).Flush()
+				<-release
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			_, _ = w.Write([]byte(`{"retries":1}`))
+		}))
+		defer server.Close()
+		defer close(release)
+
+		s := sdk.New(sdk.WithServerURL(server.URL), sdk.WithRetryConfig(retry.Config{
+			Strategy: "backoff",
+			Backoff: &retry.BackoffStrategy{
+				InitialInterval: 10,
+				MaxInterval:     50,
+				Exponent:        1.1,
+				MaxElapsedTime:  5000,
+			},
+		}))
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		start := time.Now()
+		res, err := s.Retries.RetriesGet(ctx, pseudo_uuid(), nil, operations.WithServerURL(server.URL))
+
+		require.NoError(t, err)
+		require.NotNil(t, res)
+		assert.EqualValues(t, 2, requests.Load())
+		assert.Less(t, time.Since(start), 2*time.Second)
+	})
+
+	t.Run("oversized retryable body is not retained past the limit", func(t *testing.T) {
+		var requests atomic.Int32
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+			requests.Add(1)
+			w.Header().Set("Retry-After", "2")
+			w.WriteHeader(http.StatusServiceUnavailable)
+			chunk := bytes.Repeat([]byte("x"), 64*1024)
+			for written := 0; written < 2<<20; written += len(chunk) {
+				if _, err := w.Write(chunk); err != nil {
+					return
+				}
+			}
+		}))
+		defer server.Close()
+
+		s := sdk.New(sdk.WithServerURL(server.URL), sdk.WithRetryConfig(retry.Config{
+			Strategy: "backoff",
+			Backoff: &retry.BackoffStrategy{
+				InitialInterval: 10,
+				MaxInterval:     50,
+				Exponent:        1.1,
+				MaxElapsedTime:  10000,
+			},
+		}))
+
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+		res, err := s.Retries.RetriesGet(ctx, pseudo_uuid(), nil, operations.WithServerURL(server.URL))
+
+		require.Error(t, err)
+		assert.Nil(t, res)
+		assert.ErrorContains(t, err, "exceeded 1048576 bytes")
 		assert.EqualValues(t, 1, requests.Load())
 	})
 

@@ -1,0 +1,12 @@
+id: 1791238377-49fba9d4
+features:
+    - retries
+targets:
+    - go
+    - cli
+    - terraform
+type: fix
+bump: patch
+description: return the last retryable response when the context deadline expires during a retry wait
+author: AshGodfrey
+date: "2026-10-05"
