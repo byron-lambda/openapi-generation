@@ -45,7 +45,7 @@ features:
     operationTimeout: 0.2.0
     pagination: 2.82.9
     responseFormat: 0.1.2
-    retries: 2.84.5
+    retries: 2.84.6
     sdkHooks: 0.3.1
     serverEvents: 0.1.10
     serverEventsSentinels: 0.1.0

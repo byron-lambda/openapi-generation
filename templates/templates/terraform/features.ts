@@ -16,7 +16,7 @@ const supportedFeatures = {
   examples: "2.81.19",
   groups: "2.81.3",
   deprecations: "2.82.0",
-  retries: "2.81.6",
+  retries: "2.81.7",
   inputOutputModels: "2.83.0",
   ignores: "2.82.0",
   pagination: "2.83.7",
