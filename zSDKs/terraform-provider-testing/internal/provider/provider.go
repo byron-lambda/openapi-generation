@@ -5,6 +5,7 @@ package provider
 import (
 	"context"
 	"crypto/tls"
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int32validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -633,15 +634,9 @@ func (p *TestingProvider) Configure(ctx context.Context, req provider.ConfigureR
 	security.Custom = custom
 	registerSensitiveValues(security.APIKey, basic.Password, security.Bearer, clientCredentials.ClientSecret, custom.CustomKey, custom.CustomSecret)
 
-	// Configure owns its transport: clone the default so provider-specific
-	// settings (headers, TLS skip verification) never mutate process globals.
-	transport := http.DefaultTransport
-	if t, ok := transport.(*http.Transport); ok {
-		transport = t.Clone()
-	}
 	providerHTTPTransportOpts := ProviderHTTPTransportOpts{
 		SetHeaders: make(map[string]string),
-		Transport:  transport,
+		Transport:  cleanhttp.DefaultPooledTransport(),
 	}
 
 	resp.Diagnostics.Append(data.HTTPHeaders.ElementsAs(ctx, &providerHTTPTransportOpts.SetHeaders, false)...)
