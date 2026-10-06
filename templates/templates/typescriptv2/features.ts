@@ -7,7 +7,7 @@ const supportedFeatures = {
   globalServerURLs: "2.83.1",
   methodServerURLs: "2.82.2",
   globals: "2.82.2",
-  enums: "2.83.1",
+  enums: "2.83.2",
   openEnums: "0.1.3",
   allowReserved: "0.2.0",
   openDiscriminatedUnions: "0.1.0",
